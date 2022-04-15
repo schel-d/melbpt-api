@@ -3,6 +3,8 @@
   "compilerOptions": {
     "target": "ES2017",
     "esModuleInterop": true,
-    "outDir": ".out/"
+    "outDir": ".out/",
+    "strict": true,
+    "moduleResolution": "node"
   }
 }
