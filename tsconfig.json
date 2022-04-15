@@ -1,0 +1,8 @@
+{
+  "include": ["ts/**/*"],
+  "compilerOptions": {
+    "target": "ES2017",
+    "esModuleInterop": true,
+    "outDir": ".out/"
+  }
+}
