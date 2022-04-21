@@ -1,7 +1,8 @@
 import { PlatformID } from "./id";
 
 /**
- * Represents the data known for a particular platform at a particular stop.
+ * Represents a particular platform at a particular stop. Contains information
+ * like its name and rules that define which trains stop there.
  */
 export class Platform {
   /**

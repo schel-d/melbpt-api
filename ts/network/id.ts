@@ -14,6 +14,13 @@ export type PlatformID = string
 
 /**
  * Represents a unique integer identifier for this line. Can be any number that
- * hasn't already been used (has no ties to the PTV api).
+ * hasn't already been used (has no ties to the PTV API).
  */
 export type LineID = number
+
+/**
+ * Represents a specific order of stops when used for a specific line. Each line
+ * may run in multiple directions, e.g. towards the city, from the city, via the
+ * city loop, via the metro tunnel, etc.
+ */
+export type DirectionID = string

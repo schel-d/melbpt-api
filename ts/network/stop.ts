@@ -4,12 +4,13 @@ import { Platform } from "./platform";
 import { PTVStopID } from "./ptv-id";
 
 /**
- * Represents the data known by `melbpt` for a particular stop.
+ * Represents a stop in the network. Contains details about its name, platforms,
+ * etc.
  */
 export class Stop {
   /**
-   * The unique identifier used by `melbpt` for this stop (may not match the ID
-   * used by the PTV API)
+   * A unique identifier for this stop (may not match the ID used by the PTV
+   * API). See {@link StopID}.
    */
   id: StopID;
 
@@ -19,7 +20,7 @@ export class Stop {
   name: string;
 
   /**
-   * The platform data for this stop.
+   * Data about the platforms at this stop.
    */
   platforms: Platform[];
 
@@ -33,8 +34,7 @@ export class Stop {
 
   /**
    * A list of stops that are adjacent to this stop in any direction. This is
-   * best viewed visually on the Victorian Train Map. May be used for path
-   * finding in the future.
+   * best viewed visually on the Victorian Train Map. Useful for path finding.
    */
   adjacent: StopID[];
 

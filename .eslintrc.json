@@ -15,6 +15,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "semi": "warn"
+    "semi": "warn",
+    "max-len": ["warn", { "ts": 80 }]
   }
 }
