@@ -33,8 +33,15 @@ export class Stop {
   urlName: string;
 
   /**
-   * A list of stops that are adjacent to this stop in any direction. This is
-   * best viewed visually on the Victorian Train Map. Useful for path finding.
+   * A list of stops that are adjacent to this stop in any direction on any
+   * line. Useful for path finding between stops.
+   *
+   * Lines that run express between stops have no impact on adjacency, i.e.
+   * Clayton and Caulfield are not considered adjacent because there are other
+   * stops between those two, even though from a Gippsland line perspective they
+   * could be considered adjacent.
+   *
+   * Adjacency is best viewed on the Victorian Train Map.
    */
   adjacent: StopID[];
 
