@@ -25,7 +25,7 @@ export function parseCityLoopPortal(input: string): CityLoopPortal {
   if (CityLoopPortals.includes(input as CityLoopPortal)) {
     return input as CityLoopPortal;
   }
-  else { throw `Invalid CityLoopPortal: "${input}"`; }
+  else { throw new Error(`Invalid CityLoopPortal: "${input}"`); }
 }
 
 /**
@@ -41,7 +41,7 @@ export function stopsToFlindersDirect(portal: CityLoopPortal): StopID[] {
   if (portal === "north-melbourne") {
     return [SOUTHERN_CROSS, FLINDERS_STREET];
   }
-  throw `Invalid CityLoopPortal: "${portal}"`;
+  throw new Error(`Invalid CityLoopPortal: "${portal}"`);
 }
 
 /**
@@ -57,5 +57,5 @@ export function stopsToFlindersViaLoop(portal: CityLoopPortal): StopID[] {
   if (portal === "north-melbourne") {
     return [FLAGSTAFF, MELBOURNE_CENTRAL, PARLIAMENT, FLINDERS_STREET];
   }
-  throw `Invalid CityLoopPortal: "${portal}"`;
+  throw new Error(`Invalid CityLoopPortal: "${portal}"`);
 }

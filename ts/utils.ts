@@ -6,7 +6,7 @@
 export function requireNonNull(...args: any) {
   for (const arg of args) {
     if (arg == null) {
-      throw "Cannot be null/undefined";
+      throw new Error("Cannot be null/undefined");
     }
   }
 }

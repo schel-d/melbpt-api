@@ -14,7 +14,7 @@ export const LineRouteTypes = ["linear", "city-loop", "branch"] as const;
  */
 export function parseLineRoute(input: string): LineRouteType {
   if (LineRouteTypes.includes(input as LineRouteType)) { return input as LineRouteType; }
-  else { throw `Invalid LineRoute: "${input}"`; }
+  else { throw new Error(`Invalid LineRoute: "${input}"`); }
 }
 
 /**
@@ -34,7 +34,7 @@ export const LineColors = [
  */
 export function parseLineColor(input: string): LineColor {
   if (LineColors.includes(input as LineColor)) { return input as LineColor; }
-  else { throw `Invalid LineColor: "${input}"`; }
+  else { throw new Error(`Invalid LineColor: "${input}"`); }
 }
 
 /**
@@ -55,6 +55,6 @@ export function parseLineService(input: string): LineService {
     return input as LineService;
   }
   else {
-    throw `Invalid LineService: "${input}"`;
+    throw new Error(`Invalid LineService: "${input}"`);
   }
 }

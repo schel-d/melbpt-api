@@ -9,7 +9,7 @@
     "prebuild": "npm run clean",
     "build": "tsc",
     "dev": "npm run build & npm run start",
-    "start": "node --es-module-specifier-resolution=node index.js",
+    "start": "node --es-module-specifier-resolution=node --trace-uncaught index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

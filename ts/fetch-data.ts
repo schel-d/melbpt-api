@@ -1,9 +1,10 @@
 import extract from "extract-zip";
-import { createWriteStream, existsSync, mkdir, rm } from "fs";
+import { createWriteStream, existsSync, fstat, mkdir, readFile, rm } from "fs";
 import got from "got";
 import { dirname, resolve } from "path";
 import { pipeline } from "stream";
 import { promisify } from "util";
+import { readStopsJson } from "./read-data/read-stops-json";
 
 const DATA_URL = "https://data.trainarrives.in/latest.json";
 const DATA_VERSION = "v1";
@@ -20,6 +21,7 @@ type LatestJsonType = {
 const deleteDir = promisify(rm);
 const createDir = promisify(mkdir);
 const pipelineAsync = promisify(pipeline);
+const readFileAsync = promisify(readFile);
 
 /**
  * Download the stop, line, and timetable data from the data server
@@ -32,13 +34,13 @@ export async function fetchData() {
     data = await got.get(DATA_URL).json() as LatestJsonType;
   }
   catch {
-    throw `There was not a json file at "${DATA_URL}"`;
+    throw new Error(`There was not a json file at "${DATA_URL}"`);
   }
 
   // Get the url for the version of data this software supports.
   const dataVersion = data.versions[DATA_VERSION];
   if (dataVersion == null) {
-    throw `This data server does not provide "${DATA_VERSION}" data (${DATA_URL})`;
+    throw new Error(`This data server does not provide "${DATA_VERSION}" data (${DATA_URL})`);
   }
 
   // Download the latest data, if that fails download the backup data.
@@ -53,7 +55,7 @@ export async function fetchData() {
       await downloadZip(dataVersion.backup, DATA_TEMP_LOCATION);
     }
     catch {
-      throw `Neither "${dataVersion.latest}" or backup option "${dataVersion.backup}" could be downloaded`;
+      throw new Error(`Neither "${dataVersion.latest}" or backup option "${dataVersion.backup}" could be downloaded`);
     }
   }
 
@@ -62,10 +64,14 @@ export async function fetchData() {
     await extract(DATA_TEMP_LOCATION, { dir: resolve(dirname(DATA_TEMP_LOCATION)) });
   }
   catch {
-    throw `Failed to extract zip file`;
+    throw new Error(`Failed to extract zip file`);
   }
 
+  let stopsFile = await readFileAsync(dirname(DATA_TEMP_LOCATION) + "/stops.json", "utf-8");
+  let stopsJson = JSON.parse(stopsFile);
+  let stops = readStopsJson(stopsJson);
 
+  console.log(`Read in ${stops.count()} stops.`);
 }
 
 /**
@@ -93,6 +99,6 @@ async function downloadZip(path: string, destination: string) {
     await pipelineAsync(stream, createWriteStream(destination));
   }
   else {
-    throw `"${path}" was not a zip file`;
+    throw new Error(`"${path}" was not a zip file`);
   }
 }
