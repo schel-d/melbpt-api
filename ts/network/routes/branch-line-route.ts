@@ -1,6 +1,6 @@
 import { requireNonNull } from "../../utils";
 import { Direction } from "../direction";
-import { StopID } from "../id";
+import { DirectionID, StopID } from "../id";
 import { LineRoute } from "./line-route";
 
 /**
@@ -28,6 +28,24 @@ export class BranchLineRoute extends LineRoute {
     requireNonNull(branches);
     this.branches = branches;
   }
+
+  // JSDoc inherited from base class.
+  createDirections(): Direction[] {
+    let result: Direction[] = [];
+    this.branches.forEach(b => {
+      result.push(new Direction(
+        b.id + "-up",
+        b.upTerminusName,
+        [...b.stops]
+      ));
+      result.push(new Direction(
+        b.id + "-down",
+        b.downTerminusName,
+        [...b.stops].reverse()
+      ));
+    })
+    return result;
+  }
 }
 
 /**
@@ -38,20 +56,24 @@ export class BranchLineRoute extends LineRoute {
  */
 export class Branch {
   /**
-   * Details about the up direction for this stop.
-   *
-   * Note: two branches in the same line cannot use the same direction IDs, i.e.
-   * use an ID like `"echuca-up"` rather than `"up"`.
+   * The unique identifier for this branch, which becomes a prefix for the
+   * direction names, e.g. branch with id `"echuca"` runs in directions
+   * `"echuca-up"` and `"echuca-down"`.
    */
-  upDirection: Direction;
+  id: string;
 
   /**
-   * Details about the down direction for this stop.
-   *
-   * Note: two branches in the same line cannot use the same direction IDs, i.e.
-   * use an ID like `"echuca-down"` rather than `"down"`.
+   * The name of the up terminus, e.g. "Southern Cross". Provided to the
+   * branch object since it has no access to stop names and uses it for
+   * direction names.
    */
-  downDirection: Direction;
+  upTerminusName: string;
+
+  /**
+   * The name of the down terminus, e.g. "Echuca". Provided to the branch object
+   * since it has no access to stop names and uses it for direction names.
+   */
+  downTerminusName: string;
 
   /**
    * The stops in this branch, in order, from the down terminus (e.g. Echuca)
@@ -60,10 +82,21 @@ export class Branch {
    * branches.
    */
   stops: StopID[];
-  constructor(upDirection: Direction, downDirection: Direction, stops: StopID[]) {
-    requireNonNull(upDirection, downDirection, stops)
-    this.upDirection = upDirection;
-    this.downDirection = downDirection;
+
+  /**
+   * Creates a new branch for a branch line route.
+   * @param id See {@link Branch.id}.
+   * @param stops See {@link Branch.stops}.
+   * @param upTerminusName See {@link Branch.upTerminusName}.
+   * @param downTerminusName See {@link Branch.downTerminusName}.
+   */
+  constructor(id: string, stops: StopID[], upTerminusName: string,
+    downTerminusName: string) {
+
+    requireNonNull(id, upTerminusName, downTerminusName, stops)
+    this.id = id;
+    this.upTerminusName = upTerminusName;
+    this.downTerminusName = downTerminusName;
     this.stops = stops;
   }
 }

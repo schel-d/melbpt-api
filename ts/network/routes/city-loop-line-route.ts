@@ -1,5 +1,6 @@
 import { requireNonNull } from "../../utils";
-import { CityLoopPortal } from "../city-loop";
+import { CityLoopPortal, FLINDERS_STREET_NAME, stopsToFlindersDirect, stopsToFlindersViaLoop } from "../city-loop";
+import { Direction } from "../direction";
 import { StopID } from "../id";
 import { LineRoute } from "./line-route";
 
@@ -23,14 +24,48 @@ export class CityLoopLineRoute extends LineRoute {
   portal: CityLoopPortal;
 
   /**
+   * The name of the down terminus, e.g. "Pakenham". Provided to the line object
+   * since it has no access to stop names and uses it for direction names.
+   */
+  terminusName: string;
+
+  /**
    * Creates a new city loop line route.
    * @param stops See {@link CityLoopLineRoute.stops}
    * @param portal See {@link CityLoopLineRoute.portal}
+   * @param terminusName See {@link CityLoopLineRoute.terminusName}
    */
-  constructor(stops: StopID[], portal: CityLoopPortal) {
+  constructor(stops: StopID[], portal: CityLoopPortal, terminusName: string) {
     super("city-loop");
     requireNonNull(stops, portal)
     this.stops = stops;
     this.portal = portal;
+    this.terminusName = terminusName;
+  }
+
+  // JSDoc inherited from base class.
+  createDirections(): Direction[] {
+    return [
+      new Direction(
+        "up-direct",
+        FLINDERS_STREET_NAME,
+        [...this.stops, ...stopsToFlindersDirect(this.portal)]
+      ),
+      new Direction(
+        "up-via-loop",
+        FLINDERS_STREET_NAME + " via City Loop",
+        [...this.stops, ...stopsToFlindersViaLoop(this.portal)]
+      ),
+      new Direction(
+        "down-direct",
+        this.terminusName,
+        [...this.stops, ...stopsToFlindersDirect(this.portal)].reverse()
+      ),
+      new Direction(
+        "down-via-loop",
+        this.terminusName + " via City Loop",
+        [...this.stops, ...stopsToFlindersViaLoop(this.portal)].reverse()
+      )
+    ];
   }
 }

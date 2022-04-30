@@ -27,9 +27,9 @@ export class Platform {
   /**
    * Creates a new platform. Should only really be called while reading in data
    * from the data server.
-   * @param id See {@link Platform.id}
-   * @param name See {@link Platform.name}
-   * @param rules See {@link Platform.rules}
+   * @param id See {@link Platform.id}.
+   * @param name See {@link Platform.name}.
+   * @param rules See {@link Platform.rules}.
    */
   constructor(id: PlatformID, name: string, rules: string[]) {
     this.id = id;

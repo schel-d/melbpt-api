@@ -71,7 +71,7 @@ export async function fetchData() {
 /**
  * Ensure there is an empty folder at the given path, overwriting any existing
  * folder that was there.
- * @param path The folder path
+ * @param path The folder path.
 */
 async function prepareEmptyFolder(path: string) {
   const shouldDelete = existsSync(path);
@@ -84,8 +84,8 @@ async function prepareEmptyFolder(path: string) {
 /**
  * Downloads a zip file from the given url. Throws an error if the path is not a
  * zip file.
- * @param path The URL for the zip file on the server
- * @param destination The path for the downloaded zip file to take
+ * @param path The URL for the zip file on the server.
+ * @param destination The path for the downloaded zip file to take.
  */
 async function downloadZip(path: string, destination: string) {
   if ((await got.get(path)).headers["content-type"] == "application/zip") {

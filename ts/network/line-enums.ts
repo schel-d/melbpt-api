@@ -11,7 +11,6 @@ export const LineRouteTypes = ["linear", "city-loop", "branch"] as const;
  * Throws an error if the given string is not a {@link LineRouteType}, otherwise
  * returns that string.
  * @param input The string representing the line route.
- * @returns The same string as the {@link LineRouteType} type.
  */
 export function parseLineRoute(input: string): LineRouteType {
   if (LineRouteTypes.includes(input as LineRouteType)) { return input as LineRouteType; }
@@ -32,7 +31,6 @@ export const LineColors = [
  * Throws an error if the given string is not a {@link LineColor}, otherwise
  * returns that string.
  * @param input The string representing the line color.
- * @returns The same string as the {@link LineColor} type.
  */
 export function parseLineColor(input: string): LineColor {
   if (LineColors.includes(input as LineColor)) { return input as LineColor; }
@@ -51,7 +49,6 @@ export const LineServices = ["metro", "regional"] as const;
  * Throws an error if the given string is not a {@link LineService}, otherwise
  * returns that string.
  * @param input The string representing the line service.
- * @returns The same string as the {@link LineService} type.
  */
 export function parseLineService(input: string): LineService {
   if (LineServices.includes(input as LineService)) {

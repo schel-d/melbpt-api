@@ -1,5 +1,12 @@
 import { StopID } from "./id";
 
+export const FLINDERS_STREET_NAME = "Flinders Street";
+const PARLIAMENT: StopID = 1155;
+const MELBOURNE_CENTRAL: StopID = 1120;
+const FLAGSTAFF: StopID = 1068;
+const SOUTHERN_CROSS: StopID = 1181;
+const FLINDERS_STREET: StopID = 1071;
+
 /**
  * Represents the last stop on the line before entering the city loop in an "up"
  * direction.
@@ -13,7 +20,6 @@ export const CityLoopPortals = ["richmond", "jolimont", "north-melbourne"] as co
  * Throws an error if the given string is not a {@link CityLoopPortal},
  * otherwise returns that string.
  * @param input The string representing the city loop portal.
- * @returns The same string as the {@link CityLoopPortal} type.
  */
 export function parseCityLoopPortal(input: string): CityLoopPortal {
   if (CityLoopPortals.includes(input as CityLoopPortal)) {
@@ -23,33 +29,33 @@ export function parseCityLoopPortal(input: string): CityLoopPortal {
 }
 
 /**
- * Represents a direction a train could travel around the city loop. Not to be
- * confused with the possible direction IDs that a city loop line route would
- * use.
+ * Returns the stops from the given city loop portal to Flinders Street Station,
+ * directly (without going via the city loop). The list returned will NOT
+ * include the portal station itself.
+ * @param portal The city loop portal.
  */
-export type CityLoopDirection = typeof CityLoopDirections[number]
-/**
- * An array of all the possible city loop directions.
- */
-export const CityLoopDirections = ["clockwise", "anticlockwise"] as const;
-/**
- * Throws an error if the given string is not a {@link CityLoopDirection},
- * otherwise returns that string.
- * @param input The string representing the city loop direction.
- * @returns The same string as the {@link CityLoopDirection} type.
- */
-export function parseCityLoopDirection(input: string): CityLoopDirection {
-  if (CityLoopDirections.includes(input as CityLoopDirection)) {
-    return input as CityLoopDirection;
+export function stopsToFlindersDirect(portal: CityLoopPortal): StopID[] {
+  if (portal === "richmond" || portal === "jolimont") {
+    return [FLINDERS_STREET];
   }
-  else { throw `Invalid CityLoopDirection: "${input}"`; }
+  if (portal === "north-melbourne") {
+    return [SOUTHERN_CROSS, FLINDERS_STREET];
+  }
+  throw `Invalid CityLoopPortal: "${portal}"`;
 }
 
-const PARLIAMENT: StopID = 1155;
-const MELBOURNE_CENTRAL: StopID = 1120;
-const FLAGSTAFF: StopID = 1068;
-const SOUTHERN_CROSS: StopID = 1181;
-const FLINDERS_STREET: StopID = 1071;
-const RICHMOND: StopID = 1162;
-const JOLIMONT: StopID = 1104;
-const NORTH_MELBOURNE: StopID = 1144;
+/**
+ * Returns the stops from the given city loop portal to Flinders Street Station,
+ * going via the city loop. The list returned will NOT include the portal
+ * station itself.
+ * @param portal The city loop portal.
+ */
+export function stopsToFlindersViaLoop(portal: CityLoopPortal): StopID[] {
+  if (portal === "richmond" || portal === "jolimont") {
+    return [PARLIAMENT, MELBOURNE_CENTRAL, FLAGSTAFF, SOUTHERN_CROSS, FLINDERS_STREET];
+  }
+  if (portal === "north-melbourne") {
+    return [FLAGSTAFF, MELBOURNE_CENTRAL, PARLIAMENT, FLINDERS_STREET];
+  }
+  throw `Invalid CityLoopPortal: "${portal}"`;
+}

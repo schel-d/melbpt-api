@@ -1,12 +1,7 @@
 import { requireNonNull } from "../../utils";
-import { Direction, GeneralDirection } from "../direction";
-import { DirectionID, GeneralDirectionID, StopID } from "../id";
+import { Direction } from "../direction";
+import { StopID } from "../id";
 import { LineRoute } from "./line-route";
-
-export type LinearDirectionNamingScheme = {
-  up: { name: string, shortName: string },
-  down: { name: string, shortName: string }
-}
 
 /**
  * Represents a line that simply travels between a group of stops, where there
@@ -21,73 +16,47 @@ export class LinearLineRoute extends LineRoute {
   stops: StopID[];
 
   /**
-   * Contains the direction names for the up and down direction. The directions
-   * are typically named after the terminus, e.g. "Southern Cross" for the up
-   * direction and "Bairnsdale" for the down direction on the Gippsland line.
-   * This object won't have access to stop names, otherwise this could be
-   * calculated rather than passed in the constructor.
+   * The name of the up terminus, e.g. "Southern Cross". Provided to the line
+   * object since it has no access to stop names and uses it for direction
+   * names.
    */
-  directionNames: LinearDirectionNamingScheme;
+  upTerminusName: string;
+
+  /**
+   * The name of the down terminus, e.g. "Pakenham". Provided to the line object
+   * since it has no access to stop names and uses it for direction names.
+   */
+  downTerminusName: string;
 
   /**
    * Creates a new linear line route.
-   * @param stops See {@link LinearLineRoute.stops}
+   * @param stops See {@link LinearLineRoute.stops}.
+   * @param upTerminusName See {@link LinearLineRoute.upTerminusName}.
+   * @param downTerminusName See {@link LinearLineRoute.downTerminusName}.
    */
-  constructor(stops: StopID[], directionNames: LinearDirectionNamingScheme) {
+  constructor(stops: StopID[], upTerminusName: string,
+    downTerminusName: string) {
+
     super("linear");
-    requireNonNull(stops, directionNames);
+    requireNonNull(stops, upTerminusName, downTerminusName);
     this.stops = stops;
-    this.directionNames = directionNames;
+    this.upTerminusName = upTerminusName;
+    this.downTerminusName = downTerminusName;
   }
 
-  // JSDoc inherited from LineRoute
-  getGeneralDirections(): GeneralDirectionID[] {
-    return ["up", "down"];
-  }
-
-  // JSDoc inherited from LineRoute
-  getDirections(generalDirection?: GeneralDirectionID): DirectionID[] {
-    if (generalDirection == null) { return ["up", "down"]; }
-    if (generalDirection === "up") { return ["up"]; }
-    if (generalDirection === "down") { return ["down"]; }
-    throw `Unrecognized GeneralDirectionID for LinearLineRoute: "${generalDirection}"`
-  }
-
-  // JSDoc inherited from LineRoute
-  getGeneralDirection(direction: GeneralDirectionID): GeneralDirection {
-    if (direction === "up") {
-      return new GeneralDirection(direction, this.directionNames.up.name,
-        this.directionNames.up.shortName);
-    }
-    if (direction === "down") {
-      return new GeneralDirection(direction, this.directionNames.down.name,
-        this.directionNames.down.shortName);
-    }
-    throw `Unrecognized GeneralDirectionID for LinearLineRoute: "${direction}"`
-  }
-
-  // JSDoc inherited from LineRoute
-  getDirection(direction: DirectionID): Direction {
-    if (direction === "up") {
-      return new Direction(direction, this.directionNames.up.name,
-        this.directionNames.up.shortName);
-    }
-    if (direction === "down") {
-      return new Direction(direction, this.directionNames.down.name,
-        this.directionNames.down.shortName);
-    }
-    throw `Unrecognized DirectionID for LinearLineRoute: "${direction}"`
-  }
-
-  // JSDoc inherited from LineRoute
-  getAllStops(): StopID[] {
-    return [...this.stops];
-  }
-
-  // JSDoc inherited from LineRoute
-  getStops(direction: DirectionID): StopID[] {
-    if (direction === "up") { return [...this.stops]; }
-    if (direction === "down") { return [...this.stops].reverse(); }
-    throw `Unrecognized DirectionID for LinearLineRoute: "${direction}"`
+  // JSDoc inherited from base class.
+  createDirections(): Direction[] {
+    return [
+      new Direction(
+        "up",
+        this.upTerminusName,
+        [...this.stops]
+      ),
+      new Direction(
+        "down",
+        this.downTerminusName,
+        [...this.stops].reverse()
+      )
+    ]
   }
 }
