@@ -4,6 +4,12 @@ import { Platform } from "../network/platform";
 import { Stop } from "../network/stop";
 import { StopDictionary } from "../network/stop-dictionary";
 
+/**
+ * Returns a stop dictionary containing the stop data parsed from the json
+ * object provided. Errors will be thrown in any case where the format is
+ * unexpected, however this function does a very minimal amount of validation.
+ * @param json The json object from the stops.json file on the data server.
+ */
 export function readStopsJson(json: any): StopDictionary {
   let results = new StopDictionary();
 
@@ -12,7 +18,7 @@ export function readStopsJson(json: any): StopDictionary {
     let name = ensureString(stopJson.name, `stop name (id=${id})`);
     let platforms = readPlatformsJson(stopJson.platforms, id);
     let urlName = ensureString(stopJson.urlName, `stop URL name (id=${id})`);
-    let adjacent = readAdjacentJson(stopJson.adjacent, id);
+    let adjacent = ensureIntegerArray(stopJson.adjacent, `adjacent stops (stop=${id})`)
     let ptvID = ensureInteger(stopJson.ptvID, `stop PTV ID (id=${id})`);
     results.add(new Stop(id, name, platforms, urlName, adjacent, ptvID));
   });
@@ -20,6 +26,12 @@ export function readStopsJson(json: any): StopDictionary {
   return results;
 }
 
+/**
+ * Returns the platform data for this stop, parsed from the provided json
+ * object.
+ * @param json The platforms json object.
+ * @param stop The current stop ID (used for error messages).
+ */
 function readPlatformsJson(json: any, stop: StopID): Platform[] {
   let results: Platform[] = []
 
@@ -31,8 +43,4 @@ function readPlatformsJson(json: any, stop: StopID): Platform[] {
   });
 
   return results;
-}
-
-function readAdjacentJson(json: any, stop: StopID): StopID[] {
-  return ensureIntegerArray(json, `adjacent stops (stop=${stop})`);
 }

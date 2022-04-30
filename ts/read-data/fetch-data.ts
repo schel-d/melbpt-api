@@ -4,10 +4,10 @@ import got from "got";
 import { dirname, resolve } from "path";
 import { pipeline } from "stream";
 import { promisify } from "util";
-import { readStopsJson } from "./read-data/read-stops-json";
+import { readStopsJson } from "./read-stops-json";
 
 const DATA_URL = "https://data.trainarrives.in/latest.json";
-const DATA_VERSION = "v1";
+const DATA_VERSION = "v2";
 const DATA_TEMP_LOCATION = "./.out/.data/data.zip";
 type LatestJsonType = {
   versions: {
@@ -72,6 +72,7 @@ export async function fetchData() {
   let stops = readStopsJson(stopsJson);
 
   console.log(`Read in ${stops.count()} stops.`);
+  console.log(stops.values().map(s => s.name).join(", "))
 }
 
 /**

@@ -1,7 +1,6 @@
 /**
- * Represents a unique integer identifier for this stop. Tends to match the ID
- * used by the PTV API, but doesn't need to, so this cannot be expected to be
- * used for that purpose.
+ * Represents a unique integer identifier for this stop. Doesn't necessarily
+ * match the PTV API, so this cannot be expected to be used for that purpose.
  */
 export type StopID = number
 

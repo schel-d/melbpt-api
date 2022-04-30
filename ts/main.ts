@@ -1,5 +1,5 @@
 import express from "express";
-import { fetchData } from "./fetch-data";
+import { fetchData } from "./read-data/fetch-data";
 
 export async function main() {
   const app = express();
