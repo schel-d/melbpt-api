@@ -3,6 +3,7 @@ import { Direction } from "./direction";
 import { LineID, StopID } from "./id";
 import { LineColor, LineService } from "./line-enums";
 import { LineRoute } from "./routes/line-route";
+import { PTVRouteID } from "./ptv-id";
 
 /**
  * Represents a train line, e.g. the "Pakenham" line.
@@ -38,6 +39,11 @@ export class Line {
   route: LineRoute;
 
   /**
+   * One or more route IDs from the PTV API that represent this line.
+   */
+  ptvRoutes: PTVRouteID[];
+
+  /**
    * Information about each direction this line can run in. Created by the route
    * upon construction.
    */
@@ -59,7 +65,7 @@ export class Line {
    * @param route See {@link Line.route}.
    */
   constructor(id: LineID, name: string, color: LineColor, service: LineService,
-    route: LineRoute) {
+    route: LineRoute, ptvRoutes: PTVRouteID[]) {
 
     requireNonNull(id, name, color, service, route);
     this.id = id;
@@ -67,6 +73,8 @@ export class Line {
     this.color = color;
     this.service = service;
     this.route = route;
+    this.ptvRoutes = ptvRoutes;
+
     this.directions = this.route.createDirections();
     this.allStops = getAllStops(this.directions);
   }

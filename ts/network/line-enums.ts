@@ -25,7 +25,7 @@ export type LineColor = typeof LineColors[number]
  * An array of all the possible colors that a line can be.
  */
 export const LineColors = [
-  "red", "yellow", "green", "cyan", "blue", "purple", "pink"
+  "red", "yellow", "green", "cyan", "blue", "purple", "pink", "grey"
 ] as const;
 /**
  * Throws an error if the given string is not a {@link LineColor}, otherwise
