@@ -1,5 +1,8 @@
 import express from "express";
+import { indexApi } from "./apis";
+import { networkApiV1 } from "./apis/network-v1";
 import { fetchData } from "./read-data/fetch-data";
+import { serveApi } from "./utils";
 
 /**
  * The main entry point for the server.
@@ -13,11 +16,8 @@ export async function main() {
   let data = await fetchData();
   let network = data.network;
 
-  console.log(`Read in ${network.stops.count()} stops.`);
-
-  app.get('/', (_, res) => {
-    res.json({ "status": "online" });
-  });
+  serveApi(app, "/", () => indexApi());
+  serveApi(app, "/network/v1", () => networkApiV1(network));
 
   app.listen(port, () => {
     console.log(`Server listening on port ${port}.`);

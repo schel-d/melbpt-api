@@ -11,7 +11,7 @@ export class Network {
    * The value used to determine if the client has up-to-date network
    * information. Should be the date of the data release, e.g. "2022-04-30".
    */
-  date: string;
+  hash: string;
 
   /**
    * Contains all the stops in the network.
@@ -25,11 +25,11 @@ export class Network {
 
   /**
    * Creates an empty network object.
-   * @param date The value used to determine if the client has up-to-date network information. Should be the date of the data release, e.g. "2022-04-30".
+   * @param hash The value used to determine if the client has up-to-date network information. Should be the date of the data release, e.g. "2022-04-30".
    */
-  constructor(date: string) {
-    requireNonNull(date);
-    this.date = date;
+  constructor(hash: string) {
+    requireNonNull(hash);
+    this.hash = hash;
     this.stops = new StopDictionary();
     this.lines = new LineDictionary();
   }

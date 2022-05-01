@@ -1,3 +1,5 @@
+import express from "express";
+
 /**
  * Throw an exception if any parameters ({@link args}) given are null.
  * @param args Values which are potentially null.
@@ -9,4 +11,10 @@ export function requireNonNull(...args: any) {
       throw new Error("Cannot be null/undefined");
     }
   }
+}
+
+export function serveApi(app: express.Application, path: string, apiFunction: () => any) {
+  app.get(path, (_, res: express.Response) => {
+    res.json(apiFunction());
+  });
 }

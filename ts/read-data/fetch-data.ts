@@ -48,14 +48,14 @@ export async function fetchData(): Promise<Data> {
   // This is to account for the cases where following a git commit, the server
   // has deployed the new version of "latest.json" but not the new zip file yet.
   await prepareEmptyFolder(DATA_TEMP_LOCATION);
-  let date;
+  let hash;
   try {
-    date = extractZipFileNameFromUrl(dataVersion.latest);
+    hash = extractZipFileNameFromUrl(dataVersion.latest);
     await downloadZip(dataVersion.latest, DATA_TEMP_LOCATION_ZIP);
   }
   catch {
     try {
-      date = extractZipFileNameFromUrl(dataVersion.backup);
+      hash = extractZipFileNameFromUrl(dataVersion.backup);
       await downloadZip(dataVersion.backup, DATA_TEMP_LOCATION_ZIP);
     }
     catch {
@@ -73,7 +73,7 @@ export async function fetchData(): Promise<Data> {
 
   // Read the files in the data zip archive, and return the parsed network and
   // timetable data.
-  let data = await readData(DATA_TEMP_LOCATION, date);
+  let data = await readData(DATA_TEMP_LOCATION, hash);
 
   // All finished with the files, so delete them.
   await deleteDir(DATA_TEMP_LOCATION, { recursive: true });
