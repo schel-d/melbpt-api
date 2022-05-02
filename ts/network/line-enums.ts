@@ -12,7 +12,7 @@ export const LineRouteTypes = ["linear", "city-loop", "branch"] as const;
  * returns that string.
  * @param input The string representing the line route.
  */
-export function parseLineRoute(input: string): LineRouteType {
+export function parseLineRouteType(input: string): LineRouteType {
   if (LineRouteTypes.includes(input as LineRouteType)) { return input as LineRouteType; }
   else { throw new Error(`Invalid LineRoute: "${input}"`); }
 }

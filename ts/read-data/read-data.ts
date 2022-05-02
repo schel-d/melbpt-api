@@ -1,6 +1,7 @@
 import { readFile } from "fs";
 import { promisify } from "util";
 import { Network } from "../network/network";
+import { readLinesJson } from "./read-lines-json";
 import { readStopsJson } from "./read-stops-json";
 
 const readFileAsync = promisify(readFile);
@@ -24,7 +25,12 @@ export async function readData(dirPath: string, hash: string): Promise<Data> {
   let stopsJson = JSON.parse(stopsFile);
   let stops = readStopsJson(stopsJson);
 
+  let linesFile = await readFileAsync(dirPath + "/lines.json", "utf-8");
+  let linesJson = JSON.parse(linesFile);
+  let lines = readLinesJson(linesJson, stops);
+
   let network = new Network(hash);
   network.stops = stops;
+  network.lines = lines;
   return { network: network };
 }

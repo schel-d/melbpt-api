@@ -15,6 +15,18 @@ type NetworkApiV1Schema = {
       name: string
     }[],
     urlName: string
+  }[],
+  lines: {
+    id: number,
+    name: string,
+    color: string,
+    service: string,
+    routeType: string,
+    directions: {
+      id: string,
+      name: string,
+      stops: number[]
+    }[]
   }[]
 }
 
@@ -39,6 +51,22 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
           }
         }),
         urlName: s.urlName
+      }
+    }),
+    lines: network.lines.values().map(l => {
+      return {
+        id: l.id,
+        name: l.name,
+        color: l.color,
+        service: l.service,
+        routeType: l.route.type,
+        directions: l.directions.map(d => {
+          return {
+            id: d.id,
+            name: d.name,
+            stops: d.stops
+          }
+        })
       }
     })
   };

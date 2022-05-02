@@ -1,11 +1,11 @@
 import { StopID } from "./id";
 
 export const FLINDERS_STREET_NAME = "Flinders Street";
-const PARLIAMENT: StopID = 1155;
-const MELBOURNE_CENTRAL: StopID = 1120;
-const FLAGSTAFF: StopID = 1068;
-const SOUTHERN_CROSS: StopID = 1181;
-const FLINDERS_STREET: StopID = 1071;
+const PARLIAMENT: StopID = 216;
+const MELBOURNE_CENTRAL: StopID = 171;
+const FLAGSTAFF: StopID = 101;
+const SOUTHERN_CROSS: StopID = 253;
+const FLINDERS_STREET: StopID = 104;
 
 /**
  * Represents the last stop on the line before entering the city loop in an "up"
