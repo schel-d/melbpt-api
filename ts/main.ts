@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { indexApi } from "./apis";
 import { networkApiV1 } from "./apis/network-v1";
 import { fetchData } from "./read-data/fetch-data";
@@ -12,6 +13,8 @@ export async function main() {
 
   const app = express();
   const port = process.env.PORT ?? 3000;
+
+  app.use(cors());
 
   let data = await fetchData();
   let network = data.network;
