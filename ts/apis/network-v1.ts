@@ -1,4 +1,5 @@
 import { Network } from "../network/network";
+import { CityLoopLineRoute } from "../network/routes/city-loop-line-route";
 
 /**
  * The format of the response from this API. Fields can be added here, but any
@@ -22,6 +23,7 @@ type NetworkApiV1Schema = {
     color: string,
     service: string,
     routeType: string,
+    routeLoopPortal?: string,
     directions: {
       id: string,
       name: string,
@@ -54,12 +56,20 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
       }
     }),
     lines: network.lines.values().map(l => {
+      // If this is a city loop line, then include the portal. "undefined" is
+      // used here over "null" so it will not appear in the json at all if it's
+      // not a city loop line.
+      const routeLoopPortal = l.route.type === "city-loop"
+        ? (l.route as CityLoopLineRoute).portal
+        : undefined;
+
       return {
         id: l.id,
         name: l.name,
         color: l.color,
         service: l.service,
         routeType: l.route.type,
+        routeLoopPortal: routeLoopPortal,
         directions: l.directions.map(d => {
           return {
             id: d.id,
