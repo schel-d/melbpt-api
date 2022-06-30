@@ -1,5 +1,5 @@
 import { requireNonNull } from "../utils";
-import { DirectionID, GeneralDirectionID, StopID } from "./id";
+import { DirectionID, StopID } from "./id";
 
 /**
  * Represents information about a direction of travel on a line, such as the

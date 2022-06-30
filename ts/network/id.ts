@@ -23,13 +23,3 @@ export type LineID = number
  * city loop, on a particular branch, etc.
  */
 export type DirectionID = string
-
-/**
- * Represents a relative order of stops when used for a specific line. May
- * encompass multiple more specific directions. For example the directions a
- * city loop line runs in are `"up-direct"`, `"up-via-loop"`, `"down-direct"`,
- * and `"down-via-loop"`, but the *general* directions they run in are simply
- * `"up"` or `"down"`. Used in several cases where the specifics are irritating
- * or not necessary, such as platform rules, or the timetable editor.
- */
-export type GeneralDirectionID = string
