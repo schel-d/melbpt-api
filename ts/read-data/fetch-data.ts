@@ -6,7 +6,7 @@ import { pipeline } from "stream";
 import { promisify } from "util";
 import { Data, readData } from "./read-data";
 
-const DATA_MANIFEST_URL = "https://data.trainarrives.in/latest.json";
+const DATA_MANIFEST_URL = "https://data.trainquery.com/latest.json";
 type LatestJsonType = {
   versions: {
     [version: string]: {
@@ -26,7 +26,7 @@ const pipelineAsync = promisify(pipeline);
 
 /**
  * Download the stop, line, and timetable data from the data server
- * (probably https://data.trainarrives.in).
+ * (probably https://data.trainquery.com).
  */
 export async function fetchData(): Promise<Data> {
   // Download the json type that indicates where the latest data can be found.
@@ -112,7 +112,7 @@ async function downloadZip(path: string, destination: string) {
 
 /**
  * Returns just the name of the zip file from a url, e.g. for
- * "https://data.trainarrives.in/data/2022-04-30.zip" returns just "2022-04-30".
+ * "https://data.trainquery.com/data/2022-04-30.zip" returns just "2022-04-30".
  * @param url The url of the zip file.
  */
 function extractZipFileNameFromUrl(url: string) {
