@@ -15,6 +15,7 @@ export async function main() {
   const port = process.env.PORT ?? 3000;
 
   app.use(cors());
+  app.use(express.static("other"));
 
   let data = await fetchData();
   let network = data.network;
