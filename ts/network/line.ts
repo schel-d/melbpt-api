@@ -27,8 +27,8 @@ export class Line {
   color: LineColor;
 
   /**
-   * The type of service that runs on this line. Are these "metro" or "regional"
-   * trains?
+   * The type of service that runs on this line. Are these "suburban" or
+   * "regional" trains?
    */
   service: LineService;
 

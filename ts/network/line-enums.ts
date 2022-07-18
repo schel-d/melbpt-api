@@ -44,7 +44,7 @@ export type LineService = typeof LineServices[number]
 /**
  * An array of all the possible types of service a line can be.
  */
-export const LineServices = ["metro", "regional"] as const;
+export const LineServices = ["suburban", "regional"] as const;
 /**
  * Throws an error if the given string is not a {@link LineService}, otherwise
  * returns that string.
