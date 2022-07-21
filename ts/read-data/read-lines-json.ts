@@ -138,22 +138,45 @@ function getUpTerminusName(stops: StopID[], line: LineID,
   return name;
 }
 
+/**
+ * Linear route must have a "stops" list (line=`line`).
+ */
 const linearMissingStops = (line: LineID) => new Error(
   `Linear route must have a "stops" list (line=${line})`
 );
+
+/**
+ * City loop route must have a "stops" list (line=`line`).
+ */
 const cityLoopMissingStops = (line: LineID) => new Error(
   `City loop route must have a "stops" list (line=${line})`
 );
+
+/**
+ * City loop route must have a "portal" value (line=`line`).
+ */
 const cityLoopMissingPortal = (line: LineID) => new Error(
   `City loop route must have a "portal" value (line=${line})`
 );
+
+/**
+ * Branch route must have an array of "branches" (line=`line`).
+ */
 const branchMissingBranches = (line: LineID) => new Error(
   `Branch route must have an array of "branches" (line=${line})`
 );
+
+/**
+ * Couldn't find `dirName` terminus stop (line=`line`, stop=`stop`).
+ */
 const noTerminusData = (dirName: "up" | "down", line: LineID, stop: StopID) =>
   new Error(
-    `Couldn't find ${dirName} terminus stop (line=${line}, stop=${stop}).`
+    `Couldn't find ${dirName} terminus stop (line=${line}, stop=${stop})`
   );
+
+/**
+ * Unrecognised line route type "`type`" (line=`line`).
+ */
 const badLineRouteType = (type: string, line: LineID) => new Error(
-  `Unrecognised line route type "${type}" (line=${line}).`
+  `Unrecognised line route type "${type}" (line=${line})`
 );

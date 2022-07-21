@@ -1,4 +1,3 @@
-import { requireNonNull } from "../../utils";
 import { CityLoopPortal, FLINDERS_STREET_NAME, stopsToFlindersDirect, stopsToFlindersViaLoop } from "../city-loop";
 import { Direction } from "../direction";
 import { StopID } from "../id";
@@ -16,18 +15,18 @@ export class CityLoopLineRoute extends LineRoute {
    * Pakenham) to (and including) the city loop portal (e.g. Richmond). The five
    * city loop stations should not be included in this list.
    */
-  stops: StopID[];
+  readonly stops: StopID[];
 
   /**
    * The city loop portal this line uses.
    */
-  portal: CityLoopPortal;
+  readonly portal: CityLoopPortal;
 
   /**
    * The name of the down terminus, e.g. "Pakenham". Provided to the line object
    * since it has no access to stop names and uses it for direction names.
    */
-  terminusName: string;
+  readonly terminusName: string;
 
   /**
    * Creates a new city loop line route.
@@ -37,7 +36,6 @@ export class CityLoopLineRoute extends LineRoute {
    */
   constructor(stops: StopID[], portal: CityLoopPortal, terminusName: string) {
     super("city-loop");
-    requireNonNull(stops, portal)
     this.stops = stops;
     this.portal = portal;
     this.terminusName = terminusName;

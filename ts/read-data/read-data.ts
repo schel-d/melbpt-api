@@ -30,8 +30,6 @@ export async function readData(dirPath: string, hash: string): Promise<Data> {
   let linesFile = await readFileAsync(dirPath + "/lines.json", "utf-8");
   let lines = readLinesJson(JSON.parse(linesFile), stops);
 
-  let network = new Network(hash);
-  network.stops = stops;
-  network.lines = lines;
+  let network = new Network(hash, stops, lines);
   return { network: network };
 }

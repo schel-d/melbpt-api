@@ -5,7 +5,7 @@ import { Line } from "./line";
  * A dictionary where line data be can accessed by ID.
  */
 export class LineDictionary {
-  _inner: { [line: LineID]: Line } = {};
+  readonly _inner: { [line: LineID]: Line } = {};
 
   /**
    * Add a line to the dictionary.

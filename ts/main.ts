@@ -4,6 +4,7 @@ import { indexApi } from "./apis";
 import { networkApiV1 } from "./apis/network-v1";
 import { fetchData } from "./read-data/fetch-data";
 import { serveApi } from "./utils";
+import { Settings } from "luxon";
 
 /**
  * How often (in milliseconds) to re-download the data from the data server.
@@ -15,6 +16,9 @@ const dataRefreshIntervalMs = 30 * 60 * 1000;
  * The main entry point for the server.
  */
 export async function main() {
+  // Set up luxon to use UTC by default.
+  Settings.defaultZone = "utc";
+
   console.log("Starting...");
 
   const app = express();

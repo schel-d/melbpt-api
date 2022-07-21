@@ -1,0 +1,91 @@
+import { LineID } from "../network/id"
+import { TimetableID } from "./id";
+import { LocalDate } from "./local-date";
+import { TimetableSection } from "./timetable-section";
+import { TimetableType } from "./timetable-type";
+
+/**
+ * Represents a timetable on a particular line. It may be a main timetable, or
+ * a temporary timetable with set start and end dates. The information stored in
+ * this object is what is seen in each .ttbl file.
+ */
+export class Timetable {
+  /**
+   * The ID of this timetable. This value needs to be encodable to a 2-digit
+   * base-36 integer, so must be 0-1295 inclusive. Further, the convention is to
+   * have the first base-36 digit match the line ID if it were to be encoded to
+   * base-36.
+   */
+  readonly id: TimetableID;
+
+  /**
+   * The line this timetable is for.
+   */
+  readonly line: LineID;
+
+  /**
+   * The date this timetable was originally created. Helps the program know how
+   * recently timetables for each line have been updated.
+   */
+  readonly created: LocalDate;
+
+  /**
+   * The timetable type, either "main" or "temporary".
+   */
+  readonly type: TimetableType;
+
+  /**
+   * When this timetable comes into effect, whether this is a temporary or main
+   * timetable. Leave null if it comes into effect immediately and retroactively
+   * applies to every past calendar day too.
+   */
+  readonly begins: LocalDate | null;
+
+  /**
+   * When this timetable ends (and presumably another timetable comes into
+   * effect), whether this is a temporary or main timetable. Leave null if its
+   * end date is currently unknown, as will likely usually be the case for main
+   * timetables.
+   */
+  readonly ends: LocalDate | null;
+
+  /**
+   * The sections of the timetable, containing the entries themselves. Entries
+   * are grouped by direction and week day range.
+   */
+  readonly sections: TimetableSection[];
+
+  /**
+   * Creates a {@link Timetable}.
+   * @param id The ID of this timetable. This value needs to be encodable to a
+   * 2-digit base-36 integer, so must be 0-1295 inclusive. Further, the
+   * convention is to have the first base-36 digit match the line ID if it were
+   * to be encoded to base-36.
+   * @param line The line this timetable is for.
+   * @param created The date this timetable was originally created. Helps the
+   * program know how recently timetables for each line have been updated.
+   * @param type The timetable type, either "main" or "temporary".
+   * @param begins When this timetable comes into effect, whether this is a
+   * temporary or main timetable. Leave null if it comes into effect immediately
+   * and retroactively applies to every past calendar day too.
+   * @param ends When this timetable ends (and presumably another timetable
+   * comes into effect), whether this is a temporary or main timetable. Leave
+   * null if its end date is currently unknown, as will likely usually be the
+   * case for main timetables.
+   * @param sections The sections of the timetable, containing the entries
+   * themselves. Entries are grouped by direction and week day range.
+   */
+  constructor(id: TimetableID, line: LineID, created: LocalDate,
+    type: TimetableType, begins: LocalDate | null, ends: LocalDate | null,
+    sections: TimetableSection[]) {
+
+    this.id = id;
+    this.line = line;
+    this.created = created;
+    this.type = type;
+    this.begins = begins;
+    this.ends = ends;
+
+    this.sections = sections;
+  }
+}

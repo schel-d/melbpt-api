@@ -13,8 +13,12 @@ export const LineRouteTypes = ["linear", "city-loop", "branch"] as const;
  * @param input The string representing the line route.
  */
 export function parseLineRouteType(input: string): LineRouteType {
-  if (LineRouteTypes.includes(input as LineRouteType)) { return input as LineRouteType; }
-  else { throw new Error(`Invalid LineRoute: "${input}"`); }
+  if (LineRouteTypes.includes(input as LineRouteType)) {
+    return input as LineRouteType;
+  }
+  else {
+    throw new Error(`Invalid LineRoute: "${input}"`);
+  }
 }
 
 /**
@@ -33,8 +37,12 @@ export const LineColors = [
  * @param input The string representing the line color.
  */
 export function parseLineColor(input: string): LineColor {
-  if (LineColors.includes(input as LineColor)) { return input as LineColor; }
-  else { throw new Error(`Invalid LineColor: "${input}"`); }
+  if (LineColors.includes(input as LineColor)) {
+    return input as LineColor;
+  }
+  else {
+    throw new Error(`Invalid LineColor: "${input}"`);
+  }
 }
 
 /**

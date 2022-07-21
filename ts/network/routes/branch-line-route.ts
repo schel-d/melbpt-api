@@ -1,6 +1,5 @@
-import { requireNonNull } from "../../utils";
 import { Direction } from "../direction";
-import { DirectionID, StopID } from "../id";
+import { StopID } from "../id";
 import { LineRoute } from "./line-route";
 
 /**
@@ -17,15 +16,14 @@ export class BranchLineRoute extends LineRoute {
    * Data for each branch this line can take, each with their own lists of stops
    * and direction IDs.
    */
-  branches: Branch[];
+  readonly branches: Branch[];
 
   /**
    * Creates a new branch line route.
    * @param branches See {@link BranchLineRoute.branches}
    */
   constructor(branches: Branch[]) {
-    super("branch")
-    requireNonNull(branches);
+    super("branch");
     this.branches = branches;
   }
 
@@ -60,20 +58,20 @@ export class Branch {
    * direction names, e.g. branch with id `"echuca"` runs in directions
    * `"echuca-up"` and `"echuca-down"`.
    */
-  id: string;
+  readonly id: string;
 
   /**
    * The name of the up terminus, e.g. "Southern Cross". Provided to the
    * branch object since it has no access to stop names and uses it for
    * direction names.
    */
-  upTerminusName: string;
+  readonly upTerminusName: string;
 
   /**
    * The name of the down terminus, e.g. "Echuca". Provided to the branch object
    * since it has no access to stop names and uses it for direction names.
    */
-  downTerminusName: string;
+  readonly downTerminusName: string;
 
   /**
    * The stops in this branch, in order, from the down terminus (e.g. Echuca)
@@ -81,7 +79,7 @@ export class Branch {
    * solely contain their exclusive stops, but also the stops common to both
    * branches.
    */
-  stops: StopID[];
+  readonly stops: StopID[];
 
   /**
    * Creates a new branch for a branch line route.
@@ -93,7 +91,6 @@ export class Branch {
   constructor(id: string, stops: StopID[], upTerminusName: string,
     downTerminusName: string) {
 
-    requireNonNull(id, upTerminusName, downTerminusName, stops)
     this.id = id;
     this.upTerminusName = upTerminusName;
     this.downTerminusName = downTerminusName;

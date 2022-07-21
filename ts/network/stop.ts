@@ -1,4 +1,3 @@
-import { requireNonNull } from "../utils";
 import { StopID } from "./id";
 import { Platform } from "./platform";
 import { PTVStopID } from "./ptv-id";
@@ -62,7 +61,7 @@ export class Stop {
    */
   constructor(id: StopID, name: string, platforms: Platform[], urlName: string,
     adjacent: StopID[], ptvID: PTVStopID) {
-    requireNonNull(id, name, platforms, urlName, adjacent, ptvID);
+
     this.id = id;
     this.name = name;
     this.platforms = platforms;
