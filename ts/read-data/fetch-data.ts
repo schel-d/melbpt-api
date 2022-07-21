@@ -4,21 +4,39 @@ import got from "got";
 import { basename, resolve } from "path";
 import { pipeline } from "stream";
 import { promisify } from "util";
+import { z } from "zod";
 import { Data, readData } from "./read-data";
 
-const DATA_MANIFEST_URL = "https://data.trainquery.com/latest.json";
-type LatestJsonType = {
-  versions: {
-    [version: string]: {
-      latest: string,
-      backup: string
-    }
-  }
-}
+/**
+ * Where to find the manifest file on the data server telling this program which
+ * zip file to download.
+ */
+const manifestUrl = "https://data.trainquery.com/latest.json";
 
-const DATA_VERSION = "v2";
-const DATA_TEMP_LOCATION = "./.out/.data";
-const DATA_TEMP_LOCATION_ZIP = DATA_TEMP_LOCATION + "/data.zip";
+/**
+ * Which version of the data this program support, as the manifest file may have
+ * data available in multiple formats.
+ */
+const supportedVersion = "v2";
+
+/**
+ * The directory where the extracted zip contents will live while they are being
+ * read and parsed.
+ */
+const tempDownloadFolder = "./.out/.data";
+
+/**
+ * Where to download the zip file downloaded from the data server to.
+ */
+const tempDownloadZipName = tempDownloadFolder + "/data.zip";
+
+const ManifestJson = z.object({
+  versions: z.record(z.object({
+    latest: z.string().url(),
+    backup: z.string().url()
+  }))
+});
+type ManifestJson = z.infer<typeof ManifestJson>;
 
 const deleteDir = promisify(rm);
 const createDir = promisify(mkdir);
@@ -30,55 +48,85 @@ const pipelineAsync = promisify(pipeline);
  */
 export async function fetchData(): Promise<Data> {
   // Download the json type that indicates where the latest data can be found.
-  let manifestJson: LatestJsonType;
-  try {
-    manifestJson = await got.get(DATA_MANIFEST_URL).json() as LatestJsonType;
-  }
-  catch {
-    throw new Error(`There was not a json file at "${DATA_MANIFEST_URL}"`);
-  }
+  const manifestJson = await downloadManifest(manifestUrl);
 
   // Get the url for the version of data this software supports.
-  const dataVersion = manifestJson.versions[DATA_VERSION];
+  const dataVersion = manifestJson.versions[supportedVersion];
   if (dataVersion == null) {
-    throw new Error(`This data server does not provide "${DATA_VERSION}" data (${DATA_MANIFEST_URL})`);
+    throw badVersionErr(supportedVersion, manifestUrl);
   }
 
   // Download the latest data, if that fails download the backup data.
   // This is to account for the cases where following a git commit, the server
   // has deployed the new version of "latest.json" but not the new zip file yet.
-  await prepareEmptyFolder(DATA_TEMP_LOCATION);
-  let hash;
-  try {
-    hash = extractZipFileNameFromUrl(dataVersion.latest);
-    await downloadZip(dataVersion.latest, DATA_TEMP_LOCATION_ZIP);
-  }
-  catch {
-    try {
-      hash = extractZipFileNameFromUrl(dataVersion.backup);
-      await downloadZip(dataVersion.backup, DATA_TEMP_LOCATION_ZIP);
-    }
-    catch {
-      throw new Error(`Neither "${dataVersion.latest}" or backup option "${dataVersion.backup}" could be downloaded`);
-    }
-  }
+  await prepareEmptyFolder(tempDownloadFolder);
+  const url = await downloadZipOrBackup(
+    dataVersion.latest, dataVersion.backup, tempDownloadZipName
+  );
 
   // After downloading the zip, extract its contents.
   try {
-    await extract(DATA_TEMP_LOCATION_ZIP, { dir: resolve(DATA_TEMP_LOCATION) });
+    await extract(tempDownloadZipName, { dir: resolve(tempDownloadFolder) });
   }
   catch {
-    throw new Error(`Failed to extract zip file`);
+    throw extractZipFailed();
   }
 
   // Read the files in the data zip archive, and return the parsed network and
   // timetable data.
-  let data = await readData(DATA_TEMP_LOCATION, hash);
+  const hash = extractZipFileNameFromUrl(url);
+  const data = await readData(tempDownloadFolder, hash);
 
   // All finished with the files, so delete them.
-  await deleteDir(DATA_TEMP_LOCATION, { recursive: true });
+  await deleteDir(tempDownloadFolder, { recursive: true });
 
   return data;
+}
+
+/**
+ * Returns the data in the manifest, after downloading it and parsing it to
+ * ensure it is in an understood format. Throws errors if there's not a json
+ * file at the given url, or the json file there is in an unexpected format.
+ * @param url The url of the manifest json file.
+ */
+async function downloadManifest(url: string): Promise<ManifestJson> {
+  try {
+    const json = await got.get(url).json();
+    try {
+      return ManifestJson.parse(json);
+    }
+    catch {
+      throw badManifestFormat(url);
+    }
+  }
+  catch {
+    throw badManifestUrl(url);
+  }
+}
+
+/**
+ * Attempts to download the zip file at the primary url, and if that fails,
+ * tries the backup zip file. Returns the url of the zip file that was
+ * successfully downloaded. Throws an error if neither could be downloaded.
+ * @param primary The first zip url to try.
+ * @param backup The second zip url to try.
+ */
+async function downloadZipOrBackup(primary: string, backup: string,
+  where: string): Promise<string> {
+
+  try {
+    await downloadZip(primary, where);
+    return primary;
+  }
+  catch {
+    try {
+      await downloadZip(backup, where);
+      return backup;
+    }
+    catch {
+      throw downloadFailed(primary, backup);
+    }
+  }
 }
 
 /**
@@ -106,7 +154,7 @@ async function downloadZip(path: string, destination: string) {
     await pipelineAsync(stream, createWriteStream(destination));
   }
   else {
-    throw new Error(`"${path}" was not a zip file`);
+    throw expectedZipFile(path);
   }
 }
 
@@ -118,3 +166,45 @@ async function downloadZip(path: string, destination: string) {
 function extractZipFileNameFromUrl(url: string) {
   return basename(new URL(url).pathname).replace(".zip", "");
 }
+
+/**
+ * This data server does not provide `version` data (`url`).
+ */
+const badVersionErr = (version: string, url: string) => new Error(
+  `This data server does not provide "${version}" data (${url})`
+);
+
+/**
+ * Neither `primary` or backup option `backup` could be downloaded.
+ */
+const downloadFailed = (primary: string, backup: string) => new Error(
+  `Neither "${primary}" or backup option "${backup}" could be downloaded`
+);
+
+/**
+ * Failed to extract zip file.
+ */
+const extractZipFailed = () => new Error(
+  `Failed to extract zip file`
+);
+
+/**
+ * There was not a json file at `url`.
+ */
+const badManifestUrl = (url: string) => new Error(
+  `There was not a json file at "${url}"`
+);
+
+/**
+ * Json file at `url` was in an unexpected format.
+ */
+const badManifestFormat = (url: string) => new Error(
+  `Json file at "${url}" was in an unexpected format`
+);
+
+/**
+ * `path` was not a zip file.
+ */
+const expectedZipFile = (path: string) => new Error(
+  `"${path}" was not a zip file`
+);

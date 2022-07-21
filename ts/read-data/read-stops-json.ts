@@ -1,8 +1,27 @@
-import { ensureArray, ensureInteger, ensureIntegerArray, ensureString, ensureStringArray } from "../ensure-type";
-import { StopID } from "../network/id";
+import { z } from "zod";
 import { Platform } from "../network/platform";
 import { Stop } from "../network/stop";
 import { StopDictionary } from "../network/stop-dictionary";
+
+const PlatformsJson = z.object({
+  id: z.string(),
+  name: z.string(),
+  rules: z.string().array()
+}).array();
+
+const StopsJson = z.object({
+  stops: z.object({
+    id: z.number().int(),
+    name: z.string(),
+    platforms: PlatformsJson,
+    urlName: z.string(),
+    adjacent: z.number().int().array(),
+    ptvID: z.number().int()
+  }).array()
+});
+
+type StopsJson = z.infer<typeof StopsJson>;
+type PlatformsJson = z.infer<typeof PlatformsJson>;
 
 /**
  * Returns a stop dictionary containing the stop data parsed from the json
@@ -10,17 +29,14 @@ import { StopDictionary } from "../network/stop-dictionary";
  * unexpected, however this function does a very minimal amount of validation.
  * @param json The json object from the stops.json file on the data server.
  */
-export function readStopsJson(json: any): StopDictionary {
-  let results = new StopDictionary();
+export function readStopsJson(json: unknown): StopDictionary {
+  const stopsJson = StopsJson.parse(json);
+  const results = new StopDictionary();
 
-  ensureArray(json.stops, "stops in stops.json").forEach((stopJson: any) => {
-    let id = ensureInteger(stopJson.id, "stop ID");
-    let name = ensureString(stopJson.name, `stop name (id=${id})`);
-    let platforms = readPlatformsJson(stopJson.platforms, id);
-    let urlName = ensureString(stopJson.urlName, `stop URL name (id=${id})`);
-    let adjacent = ensureIntegerArray(stopJson.adjacent, `adjacent stops (stop=${id})`)
-    let ptvID = ensureInteger(stopJson.ptvID, `stop PTV ID (id=${id})`);
-    results.add(new Stop(id, name, platforms, urlName, adjacent, ptvID));
+  stopsJson.stops.forEach(s => {
+    const platforms = readPlatformsJson(s.platforms);
+    const stop = new Stop(s.id, s.name, platforms, s.urlName, s.adjacent, s.ptvID);
+    results.add(stop);
   });
 
   return results;
@@ -30,17 +46,14 @@ export function readStopsJson(json: any): StopDictionary {
  * Returns the platform data for this stop, parsed from the provided json
  * object.
  * @param json The platforms json object.
- * @param stop The current stop ID (used for error messages).
  */
-function readPlatformsJson(json: any, stop: StopID): Platform[] {
-  let results: Platform[] = []
+function readPlatformsJson(json: PlatformsJson): Platform[] {
+  const results: Platform[] = []
 
-  ensureArray(json, `platforms (id=${stop})`).forEach((platformJson: any) => {
-    let id = ensureString(platformJson.id, `platform ID (stop=${stop})`);
-    let name = ensureString(platformJson.name, `platform name (stop=${stop}, platform=${id})`);
-    let rules = ensureStringArray(platformJson.rules, `platform rules (stop=${stop}, platform=${id}`);
-    results.push(new Platform(id, name, rules));
-  });
+  json.forEach(p => {
+    const platform = new Platform(p.id, p.name, p.rules);
+    results.push(platform);
+  })
 
   return results;
 }

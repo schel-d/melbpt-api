@@ -1,34 +1,57 @@
-import { ensureArray, ensureInteger, ensureIntegerArray, ensureString } from "../ensure-type";
-import { parseCityLoopPortal } from "../network/city-loop";
+import { z } from "zod";
+import { CityLoopPortals } from "../network/city-loop";
 import { LineID, StopID } from "../network/id";
 import { Line } from "../network/line";
 import { LineDictionary } from "../network/line-dictionary";
-import { parseLineColor, parseLineRouteType, parseLineService } from "../network/line-enums";
+import { LineColors, LineRouteTypes, LineServices } from "../network/line-enums";
 import { Branch, BranchLineRoute } from "../network/routes/branch-line-route";
 import { CityLoopLineRoute } from "../network/routes/city-loop-line-route";
 import { LineRoute } from "../network/routes/line-route";
 import { LinearLineRoute } from "../network/routes/linear-line-route";
 import { StopDictionary } from "../network/stop-dictionary";
 
+const RouteJson = z.object({
+  type: z.enum(LineRouteTypes),
+  stops: z.number().int().array().optional(),
+  portal: z.enum(CityLoopPortals).optional(),
+  branches: z.object({
+    id: z.string(),
+    stops: z.number().int().array()
+  }).array().optional()
+});
+
+const LinesJson = z.object({
+  lines: z.object({
+    id: z.number().int(),
+    name: z.string(),
+    color: z.enum(LineColors),
+    service: z.enum(LineServices),
+    route: RouteJson,
+    ptvRoutes: z.number().int().array()
+  }).array()
+});
+
+type LinesJson = z.infer<typeof LinesJson>;
+type RouteJson = z.infer<typeof RouteJson>;
+
 /**
  * Returns a line dictionary containing the line data parsed from the json
  * object provided. Errors will be thrown in any case where the format is
  * unexpected, however this function does a very minimal amount of validation.
  * @param json The json object from the line.json file on the data server.
- * @param stopsData The stop dictionary that should have been read first, this is used to provide terminus names to the routes.
+ * @param stopData The stop dictionary that should have been read first, this
+ * is used to provide terminus names to the routes.
  */
-export function readLinesJson(json: any, stopsData: StopDictionary): LineDictionary {
-  let results = new LineDictionary();
+export function readLinesJson(json: unknown,
+  stopData: StopDictionary): LineDictionary {
 
-  ensureArray(json.lines, "lines in lines.json").forEach((lineJson: any) => {
-    let id = ensureInteger(lineJson.id, "line ID");
-    let name = ensureString(lineJson.name, `line name (id=${id})`);
-    let color = parseLineColor(ensureString(lineJson.color, `line color (id=${id})`));
-    let service = parseLineService(ensureString(lineJson.service, `line service (id=${id})`));
-    let route = readRouteJson(lineJson.route, id, stopsData);
-    let ptvRoutes = ensureIntegerArray(lineJson.ptvRoutes, `line ptv routes (id=${id})`);
+  const linesJson = LinesJson.parse(json);
+  const results = new LineDictionary();
 
-    results.add(new Line(id, name, color, service, route, ptvRoutes));
+  linesJson.lines.forEach(l => {
+    const route = readRouteJson(l.route, l.id, stopData);
+    const line = new Line(l.id, l.name, l.color, l.service, route, l.ptvRoutes);
+    results.add(line);
   });
 
   return results;
@@ -38,34 +61,44 @@ export function readLinesJson(json: any, stopsData: StopDictionary): LineDiction
  * Returns the route object for this line, parsed from the given json.
  * @param json The json object representing the route.
  * @param line The line id this route is for. Used for error messages.
- * @param stopsData The stop dictionary that should have been read first, this is used to provide terminus names to the routes.
+ * @param stopData The stop dictionary that should have been read first, this
+ * is used to provide terminus names to the routes.
  */
-function readRouteJson(json: any, line: LineID, stopsData: StopDictionary): LineRoute {
-  let type = parseLineRouteType(ensureString(json.type, `route type (line=${line})`));
-  if (type == "linear") {
-    let stops = ensureIntegerArray(json.stops, `linear route stops (line=${line})`);
-    let upTerminusName = getUpTerminusName(stops, line, stopsData);
-    let downTerminusName = getDownTerminusName(stops, line, stopsData);
+function readRouteJson(json: RouteJson, line: LineID,
+  stopData: StopDictionary): LineRoute {
+
+  if (json.type == "linear") {
+    const stops = json.stops;
+    if (stops == null) { throw linearMissingStops(line); }
+
+    const upTerminusName = getUpTerminusName(stops, line, stopData);
+    const downTerminusName = getDownTerminusName(stops, line, stopData);
     return new LinearLineRoute(stops, upTerminusName, downTerminusName);
   }
-  else if (type == "city-loop") {
-    let stops = ensureIntegerArray(json.stops, `city loop route stops (line=${line})`);
-    let portal = parseCityLoopPortal(ensureString(json.portal, `city loop portal (line=${line})`));
-    let terminusName = getDownTerminusName(stops, line, stopsData);
+  else if (json.type == "city-loop") {
+    const stops = json.stops;
+    if (stops == null) { throw cityLoopMissingStops(line); }
+
+    const portal = json.portal;
+    if (portal == null) { throw cityLoopMissingPortal(line); }
+
+    const terminusName = getDownTerminusName(stops, line, stopData);
     return new CityLoopLineRoute(stops, portal, terminusName);
   }
-  else if (type == "branch") {
-    let branches = ensureArray(json.branches, `branch route branches (line=${line})`).map(branchJson => {
-      let id = ensureString(branchJson.id, `branch ID (line=${line})`);
-      let stops = ensureIntegerArray(branchJson.stops, `branch stops (line=${line}, branch="${id}")`);
-      let upTerminusName = getUpTerminusName(stops, line, stopsData);
-      let downTerminusName = getDownTerminusName(stops, line, stopsData);
-      return new Branch(id, stops, upTerminusName, downTerminusName);
-    })
+  else if (json.type == "branch") {
+    const branchesJson = json.branches;
+    if (branchesJson == null) { throw branchMissingBranches(line); }
+
+    const branches = branchesJson.map(b => {
+      const upTerminusName = getUpTerminusName(b.stops, line, stopData);
+      const downTerminusName = getDownTerminusName(b.stops, line, stopData);
+      return new Branch(b.id, b.stops, upTerminusName, downTerminusName);
+    });
+
     return new BranchLineRoute(branches);
   }
   else {
-    throw new Error(`Unrecognised line route type "${type}" (line=${line}).`)
+    throw badLineRouteType(json.type, line);
   }
 }
 
@@ -76,11 +109,13 @@ function readRouteJson(json: any, line: LineID, stopsData: StopDictionary): Line
  * @param line The list id this request is for. Used for error messages.
  * @param stopsData The dictionary of stop data, read from the data server.
  */
-function getDownTerminusName(stops: StopID[], line: LineID, stopsData: StopDictionary): string {
-  let stop = stops[0];
-  let name = stopsData.get(stop)?.name;
+function getDownTerminusName(stops: StopID[], line: LineID,
+  stopsData: StopDictionary): string {
+
+  const stop = stops[0];
+  const name = stopsData.get(stop)?.name;
   if (name == null) {
-    throw new Error(`Couldn't find down terminus stop (line=${line}, stop=${stop}).`);
+    throw noTerminusData("down", line, stop);
   }
   return name;
 }
@@ -92,11 +127,33 @@ function getDownTerminusName(stops: StopID[], line: LineID, stopsData: StopDicti
  * @param line The list id this request is for. Used for error messages.
  * @param stopsData The dictionary of stop data, read from the data server.
  */
-function getUpTerminusName(stops: StopID[], line: LineID, stopsData: StopDictionary): string {
-  let stop = stops[stops.length - 1]
-  let name = stopsData.get(stop)?.name;
+function getUpTerminusName(stops: StopID[], line: LineID,
+  stopsData: StopDictionary): string {
+
+  const stop = stops[stops.length - 1]
+  const name = stopsData.get(stop)?.name;
   if (name == null) {
-    throw new Error(`Couldn't find up terminus stop (line=${line}, stop=${stop}).`);
+    throw noTerminusData("up", line, stop);
   }
   return name;
 }
+
+const linearMissingStops = (line: LineID) => new Error(
+  `Linear route must have a "stops" list (line=${line})`
+);
+const cityLoopMissingStops = (line: LineID) => new Error(
+  `City loop route must have a "stops" list (line=${line})`
+);
+const cityLoopMissingPortal = (line: LineID) => new Error(
+  `City loop route must have a "portal" value (line=${line})`
+);
+const branchMissingBranches = (line: LineID) => new Error(
+  `Branch route must have an array of "branches" (line=${line})`
+);
+const noTerminusData = (dirName: "up" | "down", line: LineID, stop: StopID) =>
+  new Error(
+    `Couldn't find ${dirName} terminus stop (line=${line}, stop=${stop}).`
+  );
+const badLineRouteType = (type: string, line: LineID) => new Error(
+  `Unrecognised line route type "${type}" (line=${line}).`
+);

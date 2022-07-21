@@ -6,6 +6,12 @@ import { fetchData } from "./read-data/fetch-data";
 import { serveApi } from "./utils";
 
 /**
+ * How often (in milliseconds) to re-download the data from the data server.
+ * Currently set to the value of every 30 minutes.
+ */
+const dataRefreshIntervalMs = 30 * 60 * 1000;
+
+/**
  * The main entry point for the server.
  */
 export async function main() {
@@ -17,8 +23,29 @@ export async function main() {
   app.use(cors());
   app.use(express.static("other"));
 
+  // Todo: validate the data after parsing it (e.g. check the platform rules
+  // are valid, stop adjacent lists match up with each other, etc.)
   let data = await fetchData();
   let network = data.network;
+  console.log(`Downloaded data (network hash="${data.network.hash}").`);
+
+  // Every 30 minutes re-download the data from the data server to stay up to
+  // date. If an error occurs, continue using the previous version of the data,
+  // and try again in another 30 minutes.
+  setInterval(async () => {
+    try {
+      // Todo: validate the data after parsing it (e.g. check the platform rules
+      // are valid, stop adjacent lists match up with each other, etc.)
+      data = await fetchData();
+      network = data.network;
+      console.log(`Refreshed data (network hash="${data.network.hash}").`);
+    }
+    catch (ex) {
+      // If an error occurs, just log it. The data variable will still contain
+      // the old data, so no need to touch it.
+      console.log(`Error refreshing data (will continue using old data).`, ex);
+    }
+  }, dataRefreshIntervalMs);
 
   serveApi(app, "/", () => indexApi());
   serveApi(app, "/network/v1", () => networkApiV1(network));
