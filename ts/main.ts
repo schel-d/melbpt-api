@@ -31,6 +31,7 @@ export async function main() {
   // are valid, stop adjacent lists match up with each other, etc.)
   let data = await fetchData();
   let network = data.network;
+  let timetables = data.timetables;
   console.log(`Downloaded data (network hash="${data.network.hash}").`);
 
   // Every 30 minutes re-download the data from the data server to stay up to
@@ -42,6 +43,7 @@ export async function main() {
       // are valid, stop adjacent lists match up with each other, etc.)
       data = await fetchData();
       network = data.network;
+      timetables = data.timetables;
       console.log(`Refreshed data (network hash="${data.network.hash}").`);
     }
     catch (ex) {

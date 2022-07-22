@@ -1,8 +1,12 @@
 import { readFile } from "fs";
+import { readdir } from "fs/promises";
+import { extname, join } from "path";
 import { promisify } from "util";
 import { Network } from "../network/network";
+import { Timetables } from "../timetable/timetables";
 import { readLinesJson } from "./read-lines-json";
 import { readStopsJson } from "./read-stops-json";
+import { readTtbl } from "./read-ttbl";
 
 const readFileAsync = promisify(readFile);
 
@@ -11,7 +15,8 @@ const readFileAsync = promisify(readFile);
  * include network (stops and lines), and timetable information.
  */
 export type Data = {
-  network: Network;
+  network: Network,
+  timetables: Timetables
 }
 
 /**
@@ -24,12 +29,28 @@ export type Data = {
  * information. Usually the date of the data release, e.g. "2022-04-30".
  */
 export async function readData(dirPath: string, hash: string): Promise<Data> {
-  let stopsFile = await readFileAsync(dirPath + "/stops.json", "utf-8");
-  let stops = readStopsJson(JSON.parse(stopsFile));
+  const stopsFile = await readFileAsync(join(dirPath, "stops.json"), "utf-8");
+  const stops = readStopsJson(JSON.parse(stopsFile));
 
-  let linesFile = await readFileAsync(dirPath + "/lines.json", "utf-8");
-  let lines = readLinesJson(JSON.parse(linesFile), stops);
+  const linesFile = await readFileAsync(join(dirPath, "lines.json"), "utf-8");
+  const lines = readLinesJson(JSON.parse(linesFile), stops);
 
-  let network = new Network(hash, stops, lines);
-  return { network: network };
+  const network = new Network(hash, stops, lines);
+
+  const files = (await readdir(dirPath)).filter(p => extname(p) == ".ttbl");
+  const timetableList = [];
+
+  for (const file of files) {
+    // Todo: <TEMP>
+    if (file != "60-gippsland.ttbl") { continue; }
+    // </TEMP>
+
+    const text = await readFileAsync(join(dirPath, file), "utf-8");
+    const timetable = readTtbl(text, network);
+    timetableList.push(timetable);
+  }
+
+  const timetables = new Timetables(timetableList);
+
+  return { network: network, timetables: timetables };
 }

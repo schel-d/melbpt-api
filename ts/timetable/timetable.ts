@@ -4,6 +4,8 @@ import { LocalDate } from "./local-date";
 import { TimetableSection } from "./timetable-section";
 import { TimetableType } from "./timetable-type";
 
+export const maxTimetableID = 36 * 36;
+
 /**
  * Represents a timetable on a particular line. It may be a main timetable, or
  * a temporary timetable with set start and end dates. The information stored in
@@ -79,6 +81,10 @@ export class Timetable {
     type: TimetableType, begins: LocalDate | null, ends: LocalDate | null,
     sections: TimetableSection[]) {
 
+    if (id < 0 || id >= maxTimetableID) {
+      throw invalidId(id);
+    }
+
     this.id = id;
     this.line = line;
     this.created = created;
@@ -89,3 +95,11 @@ export class Timetable {
     this.sections = sections;
   }
 }
+
+/**
+ * Timetable ID must be 0-`(maxTimetableID - 1)` inclusive, so id=`id` is invalid.
+ */
+const invalidId = (id: number) => new Error(
+  `Timetable ID must be 0-${(maxTimetableID - 1)} inclusive, so id=${id} is ` +
+  `invalid`
+);

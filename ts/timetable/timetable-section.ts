@@ -1,6 +1,6 @@
 import { DirectionID } from "../network/id";
-import { WeekDayRange } from "./time-utils";
 import { TimetableEntry } from "./timetable-entry";
+import { WeekDayRange } from "./week-day-range";
 
 /**
  * Represents a group of entries in a timetable that run in a common direction

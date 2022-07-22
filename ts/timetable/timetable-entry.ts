@@ -50,7 +50,7 @@ const notEnoughStops = (index: number) => new Error(
 );
 
 /**
- * Timetable entry index must be 0-`maxEntriesPerTimetable - 1)` inclusive, so
+ * Timetable entry index must be 0-`(maxEntriesPerTimetable - 1)` inclusive, so
  * index=`index` is invalid.
  */
 const invalidIndex = (index: number) => new Error(
