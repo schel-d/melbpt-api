@@ -2,6 +2,7 @@ import { LineID } from "../network/id";
 import { TimetableID } from "../timetable/id";
 import { LocalDate } from "../timetable/local-date";
 import { parseTimetableType, TimetableType, TimetableTypes } from "../timetable/timetable-type";
+import { parseIntThrow } from "../utils";
 import { TtblSection } from "./read-ttbl";
 
 /**
@@ -65,41 +66,22 @@ function parseNullableDate(value: string): LocalDate | null {
 }
 
 /**
- * Parses an integer. Throws an error if the string given is not an integer (it
- * contains decimals, text, or illegal symbols).
- * @param value The string with the integer.
- */
-function parseIntThrow(value: string): number {
-  if (value.includes(".")) { throw notAnInt(value); }
-  const result = parseInt(value);
-  if (isNaN(result)) { throw notAnInt(value); }
-  return result;
-}
-
-/**
  * Cannot read metadata from section with header "`header`".
  */
 const wrongSection = (header: string) => new Error(
-  `Cannot read metadata from section with header "${header}"`
+  `Cannot read metadata from section with header "${header}".`
 );
 
 /**
  * Timetable metadata missing "`param`" param.
  */
 const missingParam = (param: string) => new Error(
-  `Timetable metadata missing "${param}" param`
+  `Timetable metadata missing "${param}" param.`
 );
 
 /**
  * Timetable metadata has duplicated "`param`" param.
  */
 const duplicateParam = (param: string) => new Error(
-  `Timetable metadata has duplicated "${param}" param`
-);
-
-/**
- * "`value`" is not an integer.
- */
-const notAnInt = (value: string) => new Error(
-  `"${value}" is not an integer`
+  `Timetable metadata has duplicated "${param}" param.`
 );

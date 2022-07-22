@@ -86,14 +86,14 @@ export function splitSections(text: string): TtblSection[] {
  * Timetable file (.ttbl) in unrecognized format.
  */
 const badFormat = () => new Error(
-  "Timetable file (.ttbl) file in unrecognized format"
+  "Timetable file (.ttbl) file in unrecognized format."
 );
 
 /**
- * Timetable file (.ttbl) didn't have enough sections, expected metadata and one
+ * Timetable file (.ttbl) didn't have enough sections. Expected metadata and one
  * section with timetable content as a minimum.
  */
 const notEnoughSections = () => new Error(
-  "Timetable file (.ttbl) didn't have enough sections, expected metadata and " +
-  "one section with timetable content as a minimum"
+  "Timetable file (.ttbl) didn't have enough sections. Expected metadata and " +
+  "one section with timetable content as a minimum."
 );

@@ -41,10 +41,6 @@ export async function readData(dirPath: string, hash: string): Promise<Data> {
   const timetableList = [];
 
   for (const file of files) {
-    // Todo: <TEMP>
-    if (file != "60-gippsland.ttbl") { continue; }
-    // </TEMP>
-
     const text = await readFileAsync(join(dirPath, file), "utf-8");
     const timetable = readTtbl(text, network);
     timetableList.push(timetable);

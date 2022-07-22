@@ -46,7 +46,7 @@ export type StopList = {
  * Attempted to create timetable entry with less than 2 stops (index=`index`).
  */
 const notEnoughStops = (index: number) => new Error(
-  `Attempted to create timetable entry with less than 2 stops (index=${index})`
+  `Attempted to create timetable entry with less than 2 stops (index=${index}).`
 );
 
 /**
@@ -55,5 +55,5 @@ const notEnoughStops = (index: number) => new Error(
  */
 const invalidIndex = (index: number) => new Error(
   `Timetable entry index must be 0-${(maxEntriesPerTimetable - 1)} ` +
-  `inclusive, so index=${index} is invalid`
+  `inclusive, so index=${index} is invalid.`
 );

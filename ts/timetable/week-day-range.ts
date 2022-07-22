@@ -101,5 +101,5 @@ export class WeekDayRange {
  * "`value`" is not a valid week day range.
  */
 const invalidWDR = (value: string) => new Error(
-  `"${value}" is not a valid week day range`
+  `"${value}" is not a valid week day range.`
 );

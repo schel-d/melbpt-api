@@ -78,15 +78,15 @@ export class LocalDate {
 }
 
 /**
- * Minute of day "`minuteOfDay`" is out of range for a LocalTime
+ * Minute of day "`minuteOfDay`" is out of range for a LocalTime.
  */
 const invalidDate = (year: number, month: number, day: number) => new Error(
-  `Date with year=${year}, month=${month}, and day=${day} is invalid`
+  `Date with year=${year}, month=${month}, and day=${day} is invalid.`
 );
 
 /**
- * Minute of day "`minuteOfDay`" is out of range for a LocalTime
+ * "`iso`" is an invalid date string.
  */
 const invalidISODate = (iso: string) => new Error(
-  `"${iso}" is an invalid date string`
+  `"${iso}" is an invalid date string.`
 );

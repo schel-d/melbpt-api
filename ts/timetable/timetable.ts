@@ -101,5 +101,5 @@ export class Timetable {
  */
 const invalidId = (id: number) => new Error(
   `Timetable ID must be 0-${(maxTimetableID - 1)} inclusive, so id=${id} is ` +
-  `invalid`
+  `invalid.`
 );
