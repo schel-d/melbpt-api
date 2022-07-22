@@ -17,9 +17,9 @@ export class TimetableEntry {
    * A list of stops and the times they are stopped at. Order is likely to be in
    * direction order, but not guaranteed.
    */
-  readonly times: StopList;
+  readonly times: TimetableEntryStop[];
 
-  constructor(index: number, times: StopList) {
+  constructor(index: number, times: TimetableEntryStop[]) {
     if (index < 0 || index >= maxEntriesPerTimetable) {
       throw invalidIndex(index);
     }
@@ -33,13 +33,12 @@ export class TimetableEntry {
 }
 
 /**
- * Represents a list of stops and the times they are stopped at. Order is likely
- * to be in direction order, but not guaranteed.
+ * Represents a stop and the time it is stopped at.
  */
-export type StopList = {
+export type TimetableEntryStop = {
   readonly stop: StopID,
   readonly time: LocalTime
-}[];
+};
 
 
 /**

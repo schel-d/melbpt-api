@@ -1,8 +1,10 @@
-import { LineID } from "../network/id"
+import { DirectionID, LineID } from "../network/id"
 import { TimetableID } from "./id";
 import { LocalDate } from "./local-date";
+import { TimetableEntry, TimetableEntryStop } from "./timetable-entry";
 import { TimetableSection } from "./timetable-section";
 import { TimetableType } from "./timetable-type";
+import { WeekDayRange } from "./week-day-range";
 
 export const maxTimetableID = 36 * 36;
 
@@ -94,6 +96,41 @@ export class Timetable {
 
     this.sections = sections;
   }
+
+  /**
+   * Returns the timetable entry corresponding to the given index, or returns
+   * null if that index isn't used within this timetable.
+   * @param index The index to search for.
+   */
+  getEntryByIndex(index: number): FullTimetableEntry | null {
+    const section = this.sections.find(s => s.hasIndex(index));
+    if (section == null) { return null; }
+
+    const entry = section.getEntryByIndex(index);
+    if (entry == null) { return null; }
+
+    return {
+      timetable: this.id,
+      line: this.line,
+      direction: section.direction,
+      wdr: section.wdr,
+      index: entry.index,
+      times: entry.times
+    }
+  }
+}
+
+/**
+ * A {@link TimetableEntry} with details about the timetable it came from, line,
+ * direction, and week day range attached.
+ */
+export type FullTimetableEntry = {
+  timetable: TimetableID,
+  line: LineID,
+  direction: DirectionID;
+  wdr: WeekDayRange;
+  index: number,
+  times: TimetableEntryStop[]
 }
 
 /**

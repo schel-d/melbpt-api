@@ -2,7 +2,7 @@ import { Direction } from "../network/direction";
 import { DirectionID, LineID, StopID } from "../network/id";
 import { Network } from "../network/network";
 import { LocalTime } from "../timetable/local-time";
-import { StopList, TimetableEntry } from "../timetable/timetable-entry";
+import { TimetableEntry, TimetableEntryStop } from "../timetable/timetable-entry";
 import { TimetableSection } from "../timetable/timetable-section";
 import { WeekDayRange } from "../timetable/week-day-range";
 import { parseIntThrow } from "../utils";
@@ -77,11 +77,10 @@ function getEntries(section: TtblSection, lineID: LineID, direction: Direction,
     // created above may have nulls in the time property, but after the filter
     // here that can no longer be the case, so it's fine to convert to a
     // StopList now.
-    const times = column.filter(r => r.time != null) as StopList;
+    const times = column.filter(r => r.time != null) as TimetableEntryStop[];
 
     entries.push(new TimetableEntry(index, times));
   }
-
 
   return entries;
 }

@@ -3,8 +3,9 @@ import cors from "cors";
 import { indexApi } from "./apis";
 import { networkApiV1 } from "./apis/network-v1";
 import { fetchData } from "./read-data/fetch-data";
-import { serveApi } from "./utils";
 import { Settings } from "luxon";
+import { serviceApiV1 } from "./apis/service-v1";
+import { serveApi } from "./serve-api";
 
 /**
  * How often (in milliseconds) to re-download the data from the data server.
@@ -53,8 +54,10 @@ export async function main() {
     }
   }, dataRefreshIntervalMs);
 
+
   serveApi(app, "/", () => indexApi());
   serveApi(app, "/network/v1", () => networkApiV1(network));
+  serveApi(app, "/service/v1", (p) => serviceApiV1(p, network, timetables));
 
   app.listen(port, () => {
     console.log(`Server listening on port ${port}.`);
