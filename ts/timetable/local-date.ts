@@ -56,6 +56,17 @@ export class LocalDate {
   }
 
   /**
+   * Creates a {@link LocalDate} from a Luxon {@link DateTime} object.
+   * @param luxon The Luxon {@link DateTime} object.
+   */
+  static fromLuxon(luxon: DateTime): LocalDate {
+    if (!luxon.isValid) {
+      throw invalidDate(luxon.year, luxon.month, luxon.day);
+    }
+    return new LocalDate(luxon.year, luxon.month, luxon.day);
+  }
+
+  /**
    * Converts this date into a Luxon {@link DateTime} in the UTC timezone.
    */
   toUTCDateTime(): DateTime {

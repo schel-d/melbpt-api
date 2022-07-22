@@ -106,16 +106,16 @@ export class Timetable {
     const section = this.sections.find(s => s.hasIndex(index));
     if (section == null) { return null; }
 
-    const entry = section.getEntryByIndex(index);
-    if (entry == null) { return null; }
+    const result = section.getEntryByIndex(index);
+    if (result == null) { return null; }
 
     return {
       timetable: this.id,
       line: this.line,
       direction: section.direction,
-      wdr: section.wdr,
-      index: entry.index,
-      times: entry.times
+      dayOfWeek: result.dayOfWeek,
+      index: result.entry.index,
+      times: result.entry.times
     }
   }
 }
@@ -128,7 +128,7 @@ export type FullTimetableEntry = {
   timetable: TimetableID,
   line: LineID,
   direction: DirectionID;
-  wdr: WeekDayRange;
+  dayOfWeek: number;
   index: number,
   times: TimetableEntryStop[]
 }

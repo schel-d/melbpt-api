@@ -30,7 +30,10 @@ export function readTtbl(text: string, network: Network): Timetable {
   let currentIndex = 0;
   const sections = fileSectionsWithTimetable.map(s => {
     const section = readTtblSection(s, metadata.line, currentIndex, network);
-    currentIndex += section.entries.length;
+
+    // Entries have multiple indices, one for each day of the week they occur
+    // on.
+    currentIndex += section.entries.length * section.wdr.numOfDays();
 
     return section;
   });

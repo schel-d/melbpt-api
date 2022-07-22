@@ -1,6 +1,8 @@
+import { DateTime } from "luxon";
 import { Network } from "../network/network";
 import { InvalidParamError, retrieveRequiredParam } from "../serve-api";
 import { encodeServiceID, getServiceIDComponents, parseServiceID, safeParseServiceID } from "../timetable/id";
+import { getMondayDate, specificize } from "../timetable/specificize";
 import { Timetables } from "../timetable/timetables";
 import { networkApiV1, NetworkApiV1Schema } from "./network-v1";
 
@@ -39,18 +41,22 @@ export function serviceApiV1(params: unknown, network: Network,
 
   const idCmpts = getServiceIDComponents(id);
   const entry = timetables.getEntryByIndex(idCmpts.timetable, idCmpts.index);
-
   if (entry == null) { throw serviceNotFound(idString); }
 
-  // Todo: specificize this timetable entry, using the week number in idCmpts,
-  // and actually return more than just the line and direction :)
+  const service = specificize(entry, id, network);
 
   return {
     service: {
-      id: encodeServiceID(id),
-      line: entry.line,
-      direction: entry.direction,
-      stops: []
+      id: encodeServiceID(service.id),
+      line: service.line,
+      direction: service.direction,
+      stops: service.stops.map(s => {
+        return {
+          stop: s.stop,
+          timeUTC: s.time.toISO(),
+          platform: s.platform
+        }
+      })
     },
     network: network.hash == hash ? null : networkApiV1(network)
   };

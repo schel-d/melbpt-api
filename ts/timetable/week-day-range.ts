@@ -86,7 +86,7 @@ export class WeekDayRange {
   /**
    * Converts this week day range into a string, e.g. "MTWT___".
    */
-  toString() {
+  toString(): string {
     return (this.mon ? "M" : "_") +
       (this.tue ? "T" : "_") +
       (this.wed ? "W" : "_") +
@@ -95,6 +95,41 @@ export class WeekDayRange {
       (this.sat ? "S" : "_") +
       (this.sun ? "S" : "_");
   }
+
+  /**
+   * Counts how many days are in this week day range.
+   */
+  numOfDays(): number {
+    let count = 0;
+    if (this.mon) { count++; }
+    if (this.tue) { count++; }
+    if (this.wed) { count++; }
+    if (this.thu) { count++; }
+    if (this.fri) { count++; }
+    if (this.sat) { count++; }
+    if (this.sun) { count++; }
+    return count;
+  }
+
+  /**
+   * Get day of week number (where 0 means Monday and 6 means Sunday), based on
+   * an index. This is useful for week day ranges that span multiple days. For
+   * example if the week day range is __WT_S_, index 0 returns 2 (for
+   * Wednesday), index 1 returns 3 (for Thursday), and index 2 returns 5 (for
+   * Saturday). Throws an error if the index is out of range.
+   */
+  getDayOfWeekByIndex(index: number): number {
+    const days = [];
+    if (this.mon) { days.push(0); }
+    if (this.tue) { days.push(1); }
+    if (this.wed) { days.push(2); }
+    if (this.thu) { days.push(3); }
+    if (this.fri) { days.push(4); }
+    if (this.sat) { days.push(5); }
+    if (this.sun) { days.push(6); }
+    if (index < 0 || index >= days.length) { throw invalidDayOfWeekIndex(index); }
+    return days[index];
+  }
 }
 
 /**
@@ -102,4 +137,11 @@ export class WeekDayRange {
  */
 const invalidWDR = (value: string) => new Error(
   `"${value}" is not a valid week day range.`
+);
+
+/**
+ * "`value`" is not a valid week day range.
+ */
+const invalidDayOfWeekIndex = (value: number) => new Error(
+  `"${value}" is not a valid day of week index for this week day range.`
 );

@@ -22,6 +22,7 @@ export function serveApi(app: express.Application, path: string,
       }
       else {
         res.sendStatus(500);
+        console.error(ex);
       }
     }
   });

@@ -56,7 +56,11 @@ export class TimetableSection {
    * @param index The index to search for.
    */
   hasIndex(index: number): boolean {
-    const finalIndex = this.startIndex + this.entries.length - 1;
+    // Entries have multiple indices, one for each day of the week they occur
+    // on.
+    const numOfEntries = this.entries.length * this.wdr.numOfDays();
+
+    const finalIndex = this.startIndex + numOfEntries - 1;
     return index >= this.startIndex && index <= finalIndex;
   }
 
@@ -65,11 +69,23 @@ export class TimetableSection {
    * null if that index isn't within this section.
    * @param index The index to search for.
    */
-  getEntryByIndex(index: number): TimetableEntry | null {
+  getEntryByIndex(index: number): TimetableEntryAndDayOfWeek | null {
+    // Entries have multiple indices, one for each day of the week they occur
+    // on, so we must calculate which day of week this index is for.
     if (!this.hasIndex(index)) { return null; }
-    const entry = this.entries[index - this.startIndex];
-    return entry;
+
+    const localIndex = index - this.startIndex;
+    const dayOfWeekIndex = Math.floor(localIndex / this.entries.length);
+    const dayOfWeek = this.wdr.getDayOfWeekByIndex(dayOfWeekIndex);
+
+    const entry = this.entries[localIndex % this.entries.length];
+    return { entry: entry, dayOfWeek: dayOfWeek };
   }
+}
+
+type TimetableEntryAndDayOfWeek = {
+  entry: TimetableEntry,
+  dayOfWeek: number
 }
 
 /**
