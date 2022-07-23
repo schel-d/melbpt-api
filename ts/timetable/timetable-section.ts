@@ -1,4 +1,5 @@
 import { DirectionID } from "../network/id";
+import { DayOfWeek } from "./time-utils";
 import { TimetableEntry, TimetableEntryStop } from "./timetable-entry";
 import { WeekDayRange } from "./week-day-range";
 
@@ -85,7 +86,7 @@ export class TimetableSection {
 
 type TimetableEntryAndDayOfWeek = {
   entry: TimetableEntry,
-  dayOfWeek: number
+  dayOfWeek: DayOfWeek
 }
 
 /**

@@ -1,10 +1,10 @@
 import { DirectionID, LineID } from "../network/id"
 import { TimetableID } from "./id";
 import { LocalDate } from "./local-date";
-import { TimetableEntry, TimetableEntryStop } from "./timetable-entry";
+import { DayOfWeek } from "./time-utils";
+import { TimetableEntryStop } from "./timetable-entry";
 import { TimetableSection } from "./timetable-section";
 import { TimetableType } from "./timetable-type";
-import { WeekDayRange } from "./week-day-range";
 
 export const maxTimetableID = 36 * 36;
 
@@ -128,7 +128,7 @@ export type FullTimetableEntry = {
   timetable: TimetableID,
   line: LineID,
   direction: DirectionID;
-  dayOfWeek: number;
+  dayOfWeek: DayOfWeek;
   index: number,
   times: TimetableEntryStop[]
 }

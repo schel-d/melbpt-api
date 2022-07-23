@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { DirectionID, LineID, PlatformID, StopID } from "../network/id";
 import { ServiceID } from "./id";
+import { DayOfWeek } from "./time-utils";
 
 /**
  * Represents a stop on a service.
@@ -31,6 +32,13 @@ export class Service {
   readonly direction: DirectionID;
 
   /**
+   * The day of week this service appears under in the timetable. If this
+   * service entirely occurs on the next day, this value won't necessary match
+   * the dates given by any of the stops, especially as those dates are in UTC.
+   */
+  readonly timetabledDayOfWeek: DayOfWeek;
+
+  /**
    * The list of stops serviced by this service, and the time and platform (if
    * known) for each.
    */
@@ -45,11 +53,12 @@ export class Service {
    * platform (if known) for each.
    */
   constructor(id: ServiceID, line: LineID, direction: DirectionID,
-    stops: ServiceStop[]) {
+    timetabledDayOfWeek: DayOfWeek, stops: ServiceStop[]) {
 
     this.id = id;
     this.line = line;
     this.direction = direction;
+    this.timetabledDayOfWeek = timetabledDayOfWeek;
     this.stops = stops;
   }
 }

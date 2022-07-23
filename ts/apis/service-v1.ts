@@ -16,6 +16,7 @@ type ServiceApiV1Schema = {
     id: string,
     line: number,
     direction: string,
+    timetabledDayOfWeek: string,
     stops: {
       stop: number,
       timeUTC: string,
@@ -50,6 +51,7 @@ export function serviceApiV1(params: unknown, network: Network,
       id: encodeServiceID(service.id),
       line: service.line,
       direction: service.direction,
+      timetabledDayOfWeek: service.timetabledDayOfWeek.getCodeName(),
       stops: service.stops.map(s => {
         return {
           stop: s.stop,

@@ -32,20 +32,21 @@ export function getMondayDate(week: number, now = DateTime.now()): LocalDate {
   }
 
   const currWeek = getCurrWeekNumber(now);
-  const lapWeek = posMod(currWeek + 18, 36);
+
+  // Calculate how many weeks it is until the next week with the requested
+  // number. Also calculate how many week it has been since the previous one.
+  const difference = week - currWeek
+  const nextWeekOffset = difference >= 0 ? difference : difference + 36;
+  const prevWeekOffset = difference < 0 ? difference : difference - 36;
+
+  // If the next week occurs within 18 weeks, use it. Otherwise use the previous
+  // week which will be at most 17 weeks ago.
+  const chosenOffset = nextWeekOffset <= 18 ? nextWeekOffset : prevWeekOffset;
 
   // Luxon agrees that the week starts on Monday.
   const date = now.startOf("week");
+  const result = LocalDate.fromLuxon(date.plus({ weeks: chosenOffset }));
 
-  let weekOffset = 0;
-  if (currWeek >= lapWeek) {
-    weekOffset = week > lapWeek ? (week - currWeek) : 36 - currWeek + week;
-  }
-  else {
-    weekOffset = week <= lapWeek ? (week - currWeek) : -(36 - week + currWeek);
-  }
-
-  const result = LocalDate.fromLuxon(date.plus({ weeks: weekOffset }));
   return result;
 }
 
@@ -61,8 +62,10 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
   network: Network): Service {
 
   const idCmpts = getServiceIDComponents(id);
-  const mondayInMelbourne = getMondayDate(idCmpts.week).toMelbDateTime()
-  const dateInMelbourne = mondayInMelbourne.plus({ days: entry.dayOfWeek });
+  const mondayInMelbourne = getMondayDate(idCmpts.week).toMelbDateTime();
+
+  const daysSinceMonday = entry.dayOfWeek.daysSinceMonday;
+  const dateInMelbourne = mondayInMelbourne.plus({ days: daysSinceMonday });
 
   const stops: ServiceStop[] = entry.times.map(t => {
     // Todo: Use platform rules to guesstimate platform.
@@ -75,7 +78,7 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
     }
   });
 
-  return new Service(id, entry.line, entry.direction, stops);
+  return new Service(id, entry.line, entry.direction, entry.dayOfWeek, stops);
 }
 
 /**

@@ -1,3 +1,5 @@
+import { DayOfWeek } from "./time-utils";
+
 /**
  * Represents which days of the week a timetable entry runs on.
  */
@@ -118,7 +120,7 @@ export class WeekDayRange {
    * Wednesday), index 1 returns 3 (for Thursday), and index 2 returns 5 (for
    * Saturday). Throws an error if the index is out of range.
    */
-  getDayOfWeekByIndex(index: number): number {
+  getDayOfWeekByIndex(index: number): DayOfWeek {
     const days = [];
     if (this.mon) { days.push(0); }
     if (this.tue) { days.push(1); }
@@ -128,7 +130,7 @@ export class WeekDayRange {
     if (this.sat) { days.push(5); }
     if (this.sun) { days.push(6); }
     if (index < 0 || index >= days.length) { throw invalidDayOfWeekIndex(index); }
-    return days[index];
+    return new DayOfWeek(days[index]);
   }
 }
 
