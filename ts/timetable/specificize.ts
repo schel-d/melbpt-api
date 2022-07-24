@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { Network } from "../network/network";
 import { posMod } from "../utils";
+import { guesstimatePlatforms, PlatformClues } from "./guesstimate-platforms";
 import { getServiceIDComponents, ServiceID } from "./id";
 import { LocalDate } from "./local-date";
 import { Service, ServiceStop } from "./service";
@@ -67,14 +68,29 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
   const daysSinceMonday = entry.dayOfWeek.daysSinceMonday;
   const dateInMelbourne = mondayInMelbourne.plus({ days: daysSinceMonday });
 
-  const stops: ServiceStop[] = entry.times.map(t => {
-    // Todo: Use platform rules to guesstimate platform.
+  // Construct here for the clues, rather than every stop.
+  const stoppingPattern = entry.times.map(t => t.stop);
 
+  const stops: ServiceStop[] = entry.times.map(t => {
     const timeInMelbourne = dateInMelbourne.plus({ minutes: t.time.minuteOfDay });
+    const timeUTC = timeInMelbourne.toUTC();
+
+    // Use platform rules to guesstimate platform. If at some point in the
+    // future timetables already have platform information in them, this bit
+    // can be overridden by those valuse and skipped.
+    const clues: PlatformClues = {
+      line: entry.line,
+      direction: entry.direction,
+      stoppingPattern: stoppingPattern,
+      timetabledDayOfWeek: entry.dayOfWeek,
+      timeUTC: timeUTC
+    }
+    const platform = guesstimatePlatforms(network, t.stop, clues);
+
     return {
       stop: t.stop,
-      time: timeInMelbourne.toUTC(),
-      platform: null
+      timeUTC: timeUTC,
+      platform: platform
     }
   });
 

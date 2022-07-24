@@ -55,7 +55,7 @@ export function serviceApiV1(params: unknown, network: Network,
       stops: service.stops.map(s => {
         return {
           stop: s.stop,
-          timeUTC: s.time.toISO(),
+          timeUTC: s.timeUTC.toISO(),
           platform: s.platform
         }
       })

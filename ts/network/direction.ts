@@ -35,3 +35,31 @@ export class Direction {
     this.stops = stops;
   }
 }
+
+/**
+ * Returns true if the given direction is considered to be an "up" direction.
+ * Note that this function must be manually modified to match up direction
+ * names if more are added in the future. Note that this function returning
+ * false does not indicate the direction is some flavour of "down" direction,
+ * use {@link directionIsDown} instead. There may be cases in the future where
+ * the direction is neither up nor down, e.g. the SRL?
+ * @param direction The relevant specific direction.
+ */
+export function directionIsUp(direction: DirectionID) {
+  return direction == "up" || direction == "up-direct" ||
+    direction == "up-via-loop" || direction.endsWith("-up");
+}
+
+/**
+ * Returns true if the given direction is considered to be a "down" direction.
+ * Note that this function must be manually modified to match down direction
+ * names if more are added in the future. Note that this function returning
+ * false does not indicate the direction is some flavour of "up" direction,
+ * use {@link directionIsUp} instead. There may be cases in the future where
+ * the direction is neither up nor down, e.g. the SRL?
+ * @param direction The relevant specific direction.
+ */
+export function directionIsDown(direction: DirectionID) {
+  return direction == "down" || direction == "down-direct" ||
+    direction == "down-via-loop" || direction.endsWith("-down");
+}

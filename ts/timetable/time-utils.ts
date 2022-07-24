@@ -56,6 +56,20 @@ export class DayOfWeek {
     if (this.daysSinceMonday == 6) { return "sun"; }
     throw invalidDaysSinceMonday(this.daysSinceMonday);
   }
+
+  /**
+   * Returns true if this day of week is either Saturday or Sunday.
+   */
+  isWeekend(): boolean {
+    return this.daysSinceMonday == 5 || this.daysSinceMonday == 6;
+  }
+
+  /**
+   * Returns true if this day of week is not Saturday or Sunday.
+   */
+  isWeekday(): boolean {
+    return !this.isWeekend();
+  }
 }
 
 /**

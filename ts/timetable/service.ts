@@ -7,7 +7,7 @@ import { DayOfWeek } from "./time-utils";
  * Represents a stop on a service.
  */
 export type ServiceStop = {
-  stop: StopID, time: DateTime, platform: PlatformID | null;
+  stop: StopID, timeUTC: DateTime, platform: PlatformID | null;
 }
 
 /**
