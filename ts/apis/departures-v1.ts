@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { Network } from "../network/network";
 import { InvalidParamError, retrieveRequiredParam } from "../serve-api";
-import { getDepartures } from "../timetable/departures";
+import { getDepartures } from "../timetable/get-departures";
 import { encodeServiceID } from "../timetable/id";
 import { Timetables } from "../timetable/timetables";
 import { parseIntNull } from "../utils";
@@ -66,7 +66,9 @@ export function departuresApiV1(params: unknown, network: Network,
   // Todo: Validate the filter which might be something like "platform-2" or
   // "line-10".
 
-  const departures = getDepartures(stop, time, count, reverse, filterString);
+  const departures = getDepartures(
+    timetables, stop, time, count, reverse, filterString
+  );
 
   return {
     departures: departures.map(d => {

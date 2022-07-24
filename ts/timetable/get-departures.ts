@@ -2,6 +2,7 @@ import { DateTime } from "luxon"
 import { DirectionID, LineID, PlatformID, StopID } from "../network/id"
 import { Stop } from "../network/stop"
 import { ServiceID } from "./id"
+import { Timetables } from "./timetables"
 
 export type Departure = {
   stop: StopID,
@@ -17,8 +18,10 @@ export type Departure = {
   }[]
 }
 
-export function getDepartures(stop: Stop, time: DateTime, count: number,
-  reverse: boolean, filter: string): Departure[] {
+export function getDepartures(timetables: Timetables, stop: Stop, time: DateTime,
+  count: number, reverse: boolean, filter: string): Departure[] {
+
+  // Todo: looks a bit empty here I reckon...
 
   return [];
 }
