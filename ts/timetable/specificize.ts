@@ -5,6 +5,7 @@ import { guesstimatePlatforms, PlatformClues } from "./guesstimate-platforms";
 import { getServiceIDComponents, ServiceID } from "./id";
 import { LocalDate } from "./local-date";
 import { Service, ServiceStop } from "./service";
+import { isSetDownOnly } from "./set-down-only";
 import { FullTimetableEntry } from "./timetable";
 
 /**
@@ -87,10 +88,13 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
     }
     const platform = guesstimatePlatforms(network, t.stop, clues);
 
+    const sdo = isSetDownOnly(network, t.stop, entry.line, entry.direction);
+
     return {
       stop: t.stop,
       timeUTC: timeUTC,
-      platform: platform
+      platform: platform,
+      setDownOnly: sdo
     }
   });
 

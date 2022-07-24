@@ -4,10 +4,22 @@
  * @param value The string with the integer.
  */
 export function parseIntThrow(value: string): number {
-  if (value.includes(".")) { throw notAnInt(value); }
-  const result = parseInt(value);
-  if (isNaN(result)) { throw notAnInt(value); }
-  return result;
+  if (!/^-?[0-9]+$/g.test(value)) { throw notAnInt(value); }
+  const num = parseInt(value, 10);
+  if (isNaN(num)) { throw notAnInt(value); }
+  return num;
+}
+
+/**
+ * Parses an integer. Returns null if the string given is not an integer (it
+ * contains decimals, text, or illegal symbols).
+ * @param value The string with the integer.
+ */
+export function parseIntNull(value: string): number | null {
+  if (!/^-?[0-9]+$/g.test(value)) { return null; }
+  const num = parseInt(value, 10);
+  if (isNaN(num)) { return null; }
+  return num;
 }
 
 /**

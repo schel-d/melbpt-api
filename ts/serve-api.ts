@@ -76,7 +76,7 @@ export class MissingParamError extends Error {
  * @param err The value to check.
  */
 export function isMissingParamError(err: unknown): err is MissingParamError {
-  return (err as any).missingParamName != null;
+  return err != null && (err as any).missingParamName != null;
 }
 
 /**
@@ -105,5 +105,5 @@ export class InvalidParamError extends Error {
  * @param err The value to check.
  */
 export function isInvalidParamError(err: unknown): err is InvalidParamError {
-  return (err as any).isInvalidParamError == true;
+  return err != null && (err as any).isInvalidParamError == true;
 }

@@ -6,6 +6,7 @@ import { fetchData } from "./read-data/fetch-data";
 import { Settings } from "luxon";
 import { serviceApiV1 } from "./apis/service-v1";
 import { serveApi } from "./serve-api";
+import { departuresApiV1 } from "./apis/departures-v1";
 
 /**
  * How often (in milliseconds) to re-download the data from the data server.
@@ -58,6 +59,7 @@ export async function main() {
   serveApi(app, "/", () => indexApi());
   serveApi(app, "/network/v1", () => networkApiV1(network));
   serveApi(app, "/service/v1", (p) => serviceApiV1(p, network, timetables));
+  serveApi(app, "/departures/v1", (p) => departuresApiV1(p, network, timetables));
 
   app.listen(port, () => {
     console.log(`Server listening on port ${port}.`);

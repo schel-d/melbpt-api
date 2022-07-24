@@ -1,4 +1,4 @@
-import { LineID } from "./id";
+import { LineID, StopID } from "./id";
 import { Line } from "./line";
 
 /**
@@ -63,5 +63,9 @@ export class LineDictionary {
    */
   count(): number {
     return this.ids().length;
+  }
+
+  stopAt(stop: StopID): Line[] {
+    return this.values().filter(l => l.allStops.includes(stop));
   }
 }

@@ -1,27 +1,9 @@
 import { DateTime } from "luxon";
-import { directionIsDown, directionIsUp } from "../network/direction";
+import { isDirectionDown, isDirectionUp } from "../network/direction";
 import { DirectionID, LineID, PlatformID, StopID } from "../network/id";
 import { Line } from "../network/line";
 import { Network } from "../network/network";
 import { DayOfWeek } from "./time-utils";
-
-/**
- * Possible clauses:
- * none
- * up/down/[specific-direction]
- * red/yellow/green/etc.
- * suburban/regional
- * line-X, where X is a LineID
- * stops-at-X, where X is a StopID
- * originates-at-X, where X is a StopID
- * terminates-at-X, where X is a StopID
- * weekday/weekend
- *
- * ! can be used to negate any clause
- *
- * Line name (e.g. "pakenham") is deprecated and replaced by "line-X" where X
- * is a LineID.
- */
 
 /**
  * The information about the service used to determine its platform.
@@ -103,8 +85,8 @@ function processClause(clause: string, line: Line,
   clues: PlatformClues): boolean {
 
   // Direction based: "up", "down", "up-via-loop", etc.
-  if (clause == "up" && directionIsUp(clues.direction)) { return true; }
-  if (clause == "down" && directionIsDown(clues.direction)) { return true; }
+  if (clause == "up" && isDirectionUp(clues.direction)) { return true; }
+  if (clause == "down" && isDirectionDown(clues.direction)) { return true; }
   if (clause == clues.direction) { return true; }
 
   // Line based: "cyan", "regional", "suburban", "line-10", etc.

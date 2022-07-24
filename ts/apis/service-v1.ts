@@ -1,8 +1,7 @@
-import { DateTime } from "luxon";
 import { Network } from "../network/network";
 import { InvalidParamError, retrieveRequiredParam } from "../serve-api";
-import { encodeServiceID, getServiceIDComponents, parseServiceID, safeParseServiceID } from "../timetable/id";
-import { getMondayDate, specificize } from "../timetable/specificize";
+import { encodeServiceID, getServiceIDComponents, safeParseServiceID } from "../timetable/id";
+import { specificize } from "../timetable/specificize";
 import { Timetables } from "../timetable/timetables";
 import { networkApiV1, NetworkApiV1Schema } from "./network-v1";
 
@@ -20,7 +19,8 @@ type ServiceApiV1Schema = {
     stops: {
       stop: number,
       timeUTC: string,
-      platform: string | null
+      platform: string | null,
+      setDownOnly: boolean
     }[]
   },
   network: NetworkApiV1Schema | null
@@ -56,7 +56,8 @@ export function serviceApiV1(params: unknown, network: Network,
         return {
           stop: s.stop,
           timeUTC: s.timeUTC.toISO(),
-          platform: s.platform
+          platform: s.platform,
+          setDownOnly: s.setDownOnly
         }
       })
     },
