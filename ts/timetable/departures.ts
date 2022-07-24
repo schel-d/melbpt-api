@@ -4,16 +4,17 @@ import { Stop } from "../network/stop"
 import { ServiceID } from "./id"
 
 export type Departure = {
-  service: ServiceID,
+  stop: StopID,
+  timeUTC: DateTime,
   line: LineID,
+  service: ServiceID,
   direction: DirectionID,
   platform: PlatformID | null,
-  timeUTC: DateTime,
+  setDownOnly: boolean,
   stops: {
     stop: StopID,
     timeUTC: DateTime
-  }[],
-  setDownOnly: boolean
+  }[]
 }
 
 export function getDepartures(stop: Stop, time: DateTime, count: number,

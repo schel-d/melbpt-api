@@ -14,16 +14,17 @@ import { networkApiV1, NetworkApiV1Schema } from "./network-v1";
  */
 type DeparturesApiV1Schema = {
   departures: {
-    service: string,
+    stop: number,
+    timeUTC: string,
     line: number,
+    service: string,
     direction: string,
     platform: string | null,
-    timeUTC: string,
+    setDownOnly: boolean,
     stops: {
       stop: number,
       timeUTC: string
-    }[],
-    setDownOnly: boolean
+    }[]
   }[],
   network: NetworkApiV1Schema | null
 }
@@ -70,18 +71,19 @@ export function departuresApiV1(params: unknown, network: Network,
   return {
     departures: departures.map(d => {
       return {
-        service: encodeServiceID(d.service),
+        stop: d.stop,
+        timeUTC: d.timeUTC.toISO(),
         line: d.line,
+        service: encodeServiceID(d.service),
         direction: d.direction,
         platform: d.platform,
-        timeUTC: d.timeUTC.toISO(),
+        setDownOnly: d.setDownOnly,
         stops: d.stops.map(s => {
           return {
             stop: s.stop,
             timeUTC: s.timeUTC.toISO()
           };
-        }),
-        setDownOnly: d.setDownOnly
+        })
       };
     }),
     network: network.hash == hash ? null : networkApiV1(network)
