@@ -50,6 +50,73 @@ export class LocalTime {
     const minuteOfDay = hourConsideringNextDay * 60 + minute;
     return new LocalTime(minuteOfDay);
   }
+
+  /**
+   * Returns true if this time occurs earlier than the {@link other}.
+   * @param other The time that if later, results in the method returning true.
+   */
+  isBefore(other: LocalTime) {
+    return this.minuteOfDay < other.minuteOfDay;
+  }
+
+  /**
+   * Returns true if this time occurs earlier than the {@link other} or the
+   * same.
+   * @param other The time that if later or the same, results in the method
+   * returning true.
+   */
+  isBeforeOrEqual(other: LocalTime) {
+    return this.minuteOfDay <= other.minuteOfDay;
+  }
+
+  /**
+   * Returns true if this time occurs later than the {@link other}.
+   * @param other The time that if earlier, results in the method returning true.
+   */
+  isAfter(other: LocalTime) {
+    return !this.isBeforeOrEqual(other);
+  }
+
+  /**
+   * Returns true if this time occurs later than the {@link other} or the same.
+   * @param other The time that if earlier or the same, results in the method
+   * returning true.
+   */
+  isAfterOrEqual(other: LocalTime) {
+    return !this.isBefore(other);
+  }
+
+  /**
+   * Return the same local time, but the non-"next day" version. Throws an error
+   * if this local time is not the "next day" version.
+   */
+  yesterday(): LocalTime {
+    return new LocalTime(this.minuteOfDay - 24 * 60);
+  }
+
+  /**
+   * Return the same local time, but the "next day" version. Throws an error if
+   * this local time is already the "next day" version.
+   */
+  tomorrow(): LocalTime {
+    return new LocalTime(this.minuteOfDay + 24 * 60);
+  }
+
+  /**
+   * Returns the local time that is set to 12:00am the next day.
+   * @returns
+   */
+  static startOfTomorrow(): LocalTime {
+    return new LocalTime(24 * 60);
+  }
+
+  /**
+   * Returns true if this local time is a time on the "next day".
+   * @returns
+   */
+  isNextDay(): boolean {
+    return this.minuteOfDay >= 24 * 60;
+  }
 }
 
 /**

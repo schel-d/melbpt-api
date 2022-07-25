@@ -78,8 +78,44 @@ export function getServiceIDComponents(id: ServiceID): ServiceIDComponents {
 }
 
 /**
+ * Creates a service id by mashing a timetable id, index, and week number
+ * together. Throws an error if any component is outside it's allowable range.
+ * @param timetable The timetable id.
+ * @param index The index.
+ * @param week The week number.
+ */
+export function serviceIDFromComponents(timetable: TimetableID, index: number,
+  week: number): ServiceID {
+
+  if (timetable < 0 || timetable >= 36 * 36) { throw invalidTimetableID(timetable); }
+  if (index < 0 || index >= 36 * 36 * 36) { throw invalidIndex(index); }
+  if (week < 0 || week >= 36) { throw invalidWeekNumber(week); }
+
+  return timetable * 36 * 36 * 36 * 36 + index * 36 + week;
+}
+
+/**
  * "`id`" is not a valid service ID.
  */
 const invalidServiceID = (id: string) => new Error(
   `"${id}" is not a valid service ID.`
+);
+
+/**
+ * "`id`" is not a valid timetable ID.
+ */
+const invalidTimetableID = (id: TimetableID) => new Error(
+  `"${id}" is not a valid timetable ID.`
+);
+/**
+ * "`index`" is not a valid timetable index.
+ */
+const invalidIndex = (index: number) => new Error(
+  `"${index}" is not a valid timetable index.`
+);
+/**
+ * "`number`" is not a valid week number.
+ */
+const invalidWeekNumber = (number: number) => new Error(
+  `"${number}" is not a valid week number.`
 );

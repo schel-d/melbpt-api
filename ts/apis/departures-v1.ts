@@ -3,6 +3,7 @@ import { Network } from "../network/network";
 import { InvalidParamError, retrieveRequiredParam } from "../serve-api";
 import { getDepartures } from "../timetable/get-departures";
 import { encodeServiceID } from "../timetable/id";
+import { melbTimeZone } from "../timetable/time-utils";
 import { Timetables } from "../timetable/timetables";
 import { parseIntNull } from "../utils";
 import { networkApiV1, NetworkApiV1Schema } from "./network-v1";
@@ -67,12 +68,17 @@ export function departuresApiV1(params: unknown, network: Network,
   // "line-10".
 
   const departures = getDepartures(
-    timetables, stop, time, count, reverse, filterString
+    timetables, network, stop, time, count, reverse, filterString
   );
 
   return {
     departures: departures.map(d => {
       return {
+
+        // <TEMP>
+        localTime: d.timeUTC.setZone(melbTimeZone).toFormat("ccc HH:mm"),
+        // </TEMP>
+
         stop: d.stop,
         timeUTC: d.timeUTC.toISO(),
         line: d.line,

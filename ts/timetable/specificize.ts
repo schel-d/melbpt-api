@@ -14,11 +14,11 @@ import { FullTimetableEntry } from "./timetable";
 const dateLoopBasis = DateTime.utc(2022, 1, 3);
 
 /**
- * Returns the week number of the current week.
- * @param now The current time (by default at least, this value can override).
+ * Returns the week number of the given date.
+ * @param date The date.
  */
-export function getCurrWeekNumber(now = DateTime.now()): number {
-  const numOfWeeks = now.diff(dateLoopBasis).as("weeks");
+export function getWeekNumber(date: DateTime): number {
+  const numOfWeeks = date.diff(dateLoopBasis).as("weeks");
   return posMod(Math.floor(numOfWeeks), 36);
 }
 
@@ -33,7 +33,7 @@ export function getMondayDate(week: number, now = DateTime.now()): LocalDate {
     throw invalidWeekNumber(week);
   }
 
-  const currWeek = getCurrWeekNumber(now);
+  const currWeek = getWeekNumber(now);
 
   // Calculate how many weeks it is until the next week with the requested
   // number. Also calculate how many week it has been since the previous one.

@@ -132,6 +132,41 @@ export class WeekDayRange {
     if (index < 0 || index >= days.length) { throw invalidDayOfWeekIndex(index); }
     return new DayOfWeek(days[index]);
   }
+
+  /**
+   * Returns true if the given {@link day} is within this week day range.
+   * @param day The day of week to test.
+   */
+  includes(day: DayOfWeek): boolean {
+    if (day.daysSinceMonday == 0) { return this.mon; }
+    if (day.daysSinceMonday == 1) { return this.tue; }
+    if (day.daysSinceMonday == 2) { return this.wed; }
+    if (day.daysSinceMonday == 3) { return this.thu; }
+    if (day.daysSinceMonday == 4) { return this.fri; }
+    if (day.daysSinceMonday == 5) { return this.sat; }
+    if (day.daysSinceMonday == 6) { return this.sun; }
+    throw invalidDayOfWeekIndex(day.daysSinceMonday);
+  }
+
+
+  /**
+   * Returns the index on the given day of week within this week day range, e.g.
+   * 3 for Thursday if the week day range is Mon-Thu. Throws an error if the day
+   * isn't in the week day range at all.
+   */
+  indexOf(dayOfWeek: DayOfWeek): number {
+    const days = [];
+    if (this.mon) { days.push(0); }
+    if (this.tue) { days.push(1); }
+    if (this.wed) { days.push(2); }
+    if (this.thu) { days.push(3); }
+    if (this.fri) { days.push(4); }
+    if (this.sat) { days.push(5); }
+    if (this.sun) { days.push(6); }
+    const index = days.indexOf(dayOfWeek.daysSinceMonday);
+    if (index == -1) { throw dayNotFound(dayOfWeek); }
+    return index;
+  }
 }
 
 /**
@@ -146,4 +181,10 @@ const invalidWDR = (value: string) => new Error(
  */
 const invalidDayOfWeekIndex = (value: number) => new Error(
   `"${value}" is not a valid day of week index for this week day range.`
+);
+/**
+ * This week day range does not have "`dayOfWeek`".
+ */
+const dayNotFound = (dayOfWeek: DayOfWeek) => new Error(
+  `This week day range does not have "${dayOfWeek.getCodeName()}".`
 );

@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { MelbTimeZone } from "./time-utils";
+import { melbTimeZone } from "./time-utils";
 
 /**
  * Represents a date which is independent of a time zone (simply stores numbers
@@ -77,7 +77,7 @@ export class LocalDate {
    * Converts this date into a Luxon {@link DateTime} in Melbourne's timezone.
    */
   toMelbDateTime(): DateTime {
-    return DateTime.local(this.year, this.month, this.day, { zone: MelbTimeZone });
+    return DateTime.local(this.year, this.month, this.day, { zone: melbTimeZone });
   }
 
   /**
@@ -85,6 +85,48 @@ export class LocalDate {
    */
   toISO(): string {
     return this.toUTCDateTime().toISODate();
+  }
+
+  /**
+   * Returns true if this date occurs before the {@link other}.
+   * @param other The date that if later, causes this method to return true.
+   */
+  isBefore(other: LocalDate) {
+    if (this.year < other.year) { return true; }
+    if (this.year > other.year) { return false; }
+    if (this.month < other.month) { return true; }
+    if (this.month > other.month) { return false; }
+    return this.day < other.day;
+  }
+
+  /**
+   * Returns true if this date occurs before the {@link other}, or is the same.
+   * @param other The date that if later or the same, causes this method to
+   * return true.
+   */
+  isBeforeOrEqual(other: LocalDate) {
+    if (this.year < other.year) { return true; }
+    if (this.year > other.year) { return false; }
+    if (this.month < other.month) { return true; }
+    if (this.month > other.month) { return false; }
+    return this.day <= other.day;
+  }
+
+  /**
+   * Returns true if this date occurs after the {@link other}.
+   * @param other The date that if later, causes this method to return true.
+   */
+  isAfter(other: LocalDate) {
+    return !this.isBeforeOrEqual(other);
+  }
+
+  /**
+   * Returns true if this date occurs after the {@link other}, or is the same.
+   * @param other The date that if later or the same, causes this method to
+   * return true.
+   */
+  isAfterOrEqual(other: LocalDate) {
+    return !this.isBefore(other);
   }
 }
 

@@ -1,7 +1,7 @@
 /**
  * The official time zone name for Melbourne as used by Luxon.
  */
-export const MelbTimeZone = "Australia/Melbourne";
+export const melbTimeZone = "Australia/Melbourne";
 
 /**
  * Represents a day of the week value, e.g. Thursday.
@@ -69,6 +69,23 @@ export class DayOfWeek {
    */
   isWeekday(): boolean {
     return !this.isWeekend();
+  }
+
+  /**
+   * Returns the day of week of the day before this one.
+   */
+  yesterday(): DayOfWeek {
+    if (this.daysSinceMonday == 0) {
+      return new DayOfWeek(6);
+    }
+    return new DayOfWeek(this.daysSinceMonday - 1);
+  }
+
+  /**
+   * Returns the day of week of the day after this one.
+   */
+  tomorrow(): DayOfWeek {
+    return new DayOfWeek((this.daysSinceMonday + 1) % 7)
   }
 }
 
