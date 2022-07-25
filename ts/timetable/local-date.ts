@@ -128,6 +128,30 @@ export class LocalDate {
   isAfterOrEqual(other: LocalDate) {
     return !this.isBefore(other);
   }
+
+  /**
+   * Returns the local date of the day before this day in the calendar. Uses
+   * luxon under the hood to work out the date.
+   */
+  yesterday(): LocalDate {
+    return LocalDate.fromLuxon(this.toUTCDateTime().minus({ days: 1 }));
+  }
+
+  /**
+   * Returns the local date of the day after this day in the calendar. Uses
+   * luxon under the hood to work out the date.
+   */
+  tomorrow(): LocalDate {
+    return LocalDate.fromLuxon(this.toUTCDateTime().plus({ days: 1 }));
+  }
+}
+
+/**
+ * Function that detects whether a value is a LocalDate object or not.
+ * @param value The potential LocalDate.
+ */
+export function isLocalDate(value: any): value is LocalDate {
+  return value != null && value.toMelbDateTime != null;
 }
 
 /**

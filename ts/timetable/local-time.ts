@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 /**
  * Represents a time of day as used by a timetable. Local times can also
  * represent times which occur on the next day for timetable purposes (i.e.
@@ -49,6 +51,16 @@ export class LocalTime {
     const hourConsideringNextDay = nextDay ? (hour + 24) : hour;
     const minuteOfDay = hourConsideringNextDay * 60 + minute;
     return new LocalTime(minuteOfDay);
+  }
+
+  /**
+   * Creates a {@link LocalTime} from the time component of a luxon
+   * {@link DateTime}. Make sure to set the time zone you want on the luxon
+   * DateTime before passing it here.
+   * @param time The luxon datetime.
+   */
+  static fromLuxon(time: DateTime): LocalTime {
+    return new LocalTime(time.hour * 60 + time.minute);
   }
 
   /**

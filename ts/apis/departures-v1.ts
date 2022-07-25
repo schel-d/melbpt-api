@@ -36,7 +36,7 @@ type DeparturesApiV1Schema = {
  * network hash.
  */
 export function departuresApiV1(params: unknown, network: Network,
-  timetables: Timetables): DeparturesApiV1Schema {
+  timetables: Timetables): any {
 
   const stopString = retrieveRequiredParam(params, "stop");
   const timeString = retrieveRequiredParam(params, "time");
@@ -71,31 +71,33 @@ export function departuresApiV1(params: unknown, network: Network,
     timetables, network, stop, time, count, reverse, filterString
   );
 
-  return {
-    departures: departures.map(d => {
-      return {
+  return departures.map(d => d.timeUTC.setZone(melbTimeZone).toFormat("ccc HH:mm") + " " + d.direction + " " + encodeServiceID(d.service));
 
-        // <TEMP>
-        localTime: d.timeUTC.setZone(melbTimeZone).toFormat("ccc HH:mm"),
-        // </TEMP>
+  // return {
+  //   departures: departures.map(d => {
+  //     return {
 
-        stop: d.stop,
-        timeUTC: d.timeUTC.toISO(),
-        line: d.line,
-        service: encodeServiceID(d.service),
-        direction: d.direction,
-        platform: d.platform,
-        setDownOnly: d.setDownOnly,
-        stops: d.stops.map(s => {
-          return {
-            stop: s.stop,
-            timeUTC: s.timeUTC.toISO()
-          };
-        })
-      };
-    }),
-    network: network.hash == hash ? null : networkApiV1(network)
-  };
+  //       // <TEMP>
+  //       localTime: d.timeUTC.setZone(melbTimeZone).toFormat("ccc HH:mm"),
+  //       // </TEMP>
+
+  //       stop: d.stop,
+  //       timeUTC: d.timeUTC.toISO(),
+  //       line: d.line,
+  //       service: encodeServiceID(d.service),
+  //       direction: d.direction,
+  //       platform: d.platform,
+  //       setDownOnly: d.setDownOnly,
+  //       stops: d.stops.map(s => {
+  //         return {
+  //           stop: s.stop,
+  //           timeUTC: s.timeUTC.toISO()
+  //         };
+  //       })
+  //     };
+  //   }),
+  //   network: network.hash == hash ? null : networkApiV1(network)
+  // };
 }
 
 /**

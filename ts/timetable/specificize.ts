@@ -3,7 +3,7 @@ import { Network } from "../network/network";
 import { posMod } from "../utils";
 import { guesstimatePlatforms, PlatformClues } from "./guesstimate-platforms";
 import { getServiceIDComponents, ServiceID } from "./id";
-import { LocalDate } from "./local-date";
+import { isLocalDate, LocalDate } from "./local-date";
 import { Service, ServiceStop } from "./service";
 import { isSetDownOnly } from "./set-down-only";
 import { FullTimetableEntry } from "./timetable";
@@ -15,11 +15,19 @@ const dateLoopBasis = DateTime.utc(2022, 1, 3);
 
 /**
  * Returns the week number of the given date.
+ * @param dateUTC The date in UTC.
+ */
+export function getWeekNumberLuxon(dateUTC: DateTime): number {
+  const numOfWeeks = dateUTC.diff(dateLoopBasis).as("weeks");
+  return posMod(Math.floor(numOfWeeks), 36);
+}
+
+/**
+ * Returns the week number of the given date.
  * @param date The date.
  */
-export function getWeekNumber(date: DateTime): number {
-  const numOfWeeks = date.diff(dateLoopBasis).as("weeks");
-  return posMod(Math.floor(numOfWeeks), 36);
+export function getWeekNumber(date: LocalDate): number {
+  return getWeekNumberLuxon(date.toUTCDateTime());
 }
 
 /**
@@ -33,7 +41,7 @@ export function getMondayDate(week: number, now = DateTime.now()): LocalDate {
     throw invalidWeekNumber(week);
   }
 
-  const currWeek = getWeekNumber(now);
+  const currWeek = getWeekNumberLuxon(now);
 
   // Calculate how many weeks it is until the next week with the requested
   // number. Also calculate how many week it has been since the previous one.

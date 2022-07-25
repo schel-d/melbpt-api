@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 /**
  * The official time zone name for Melbourne as used by Luxon.
  */
@@ -86,6 +88,14 @@ export class DayOfWeek {
    */
   tomorrow(): DayOfWeek {
     return new DayOfWeek((this.daysSinceMonday + 1) % 7)
+  }
+
+  /**
+   * Creates a {@link DayOfWeek} from a luxon datetime.
+   * @param value The date to determine the day of week from.
+   */
+  static fromLuxon(value: DateTime): DayOfWeek {
+    return new DayOfWeek(value.weekday - 1);
   }
 }
 

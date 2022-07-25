@@ -2,6 +2,7 @@ import { DateTime } from "luxon"
 import { DirectionID, LineID, PlatformID, StopID } from "../network/id"
 import { Network } from "../network/network"
 import { Stop } from "../network/stop"
+import { posMod } from "../utils"
 import { ServiceID, serviceIDFromComponents, TimetableID } from "./id"
 import { LocalDate } from "./local-date"
 import { LocalTime } from "./local-time"
@@ -32,35 +33,60 @@ export function getDepartures(timetables: Timetables, network: Network,
 
   const melbTime = time.setZone(melbTimeZone);
 
-  // For the forwards direction, start one day behind to get all the "next day"
-  // stragglers.
-  let iterDay = melbTime.minus({ days: 1 });
+  let iterDay = LocalDate.fromLuxon(melbTime);
+  let iterOffset = 0;
+  let yesterdayTimetables = timetablesForDay(iterDay.yesterday(), timetables, lines);
 
-  while (true) {
+  let departures: Departure[] = [];
+
+  while (iterOffset < 7) {
+    const todayTimetables = timetablesForDay(iterDay, timetables, lines);
+    const dayOfWeek = DayOfWeek.fromLuxon(melbTime);
+
+    const minTime = iterOffset == 0 ? LocalTime.fromLuxon(melbTime) : null;
+
+    const possibilities = getCompletePossibilities(
+      yesterdayTimetables, todayTimetables, stop.id, dayOfWeek, minTime, null
+    );
+
     const week = getWeekNumber(iterDay);
+    departures.push(...possibilityToService(
+      possibilities, timetables, network, stop.id, dayOfWeek, week
+    ));
 
-    // Todo: looks a bit empty here I reckon...
-    break;
+    // Todo: filter departures however you'd like...
+
+    if (departures.length > count) {
+      break;
+    }
+
+    iterDay = iterDay.tomorrow();
+    iterOffset++;
+    yesterdayTimetables = todayTimetables;
   }
 
+  return departures;
+}
 
-  // <TEMP>
-  const week = 29;
-  const t1 = timetablesForDay(new LocalDate(2022, 7, 25), timetables, lines);
-  const t2 = timetablesForDay(new LocalDate(2022, 7, 26), timetables, lines);
-  const possibilities = getCompletePossibilities(
-    t1, t2, stop.id, new DayOfWeek(1), null, null
-  );
-  // </TEMP>
+function possibilityToService(possibilities: DeparturePossibility[],
+  timetables: Timetables, network: Network, stop: StopID, dayOfWeek: DayOfWeek,
+  week: number): Departure[] {
 
   const departures = possibilities.map(p => {
     const entry = timetables.getEntryByIndex(p.timetable, p.index);
     if (entry == null) { throw missingEntry(p.timetable, p.index); }
 
-    const serviceID = serviceIDFromComponents(p.timetable, p.index, week);
+    // If this entries day of week is not the same as the given day of week,
+    // then it must've occured yesterday. If it is greater than the given one
+    // then yesterday must've been Sunday and today Monday, so it occured last
+    // week.
+    const occursWeekBefore = entry.dayOfWeek.daysSinceMonday > dayOfWeek.daysSinceMonday;
+    const weekForThisEntry = occursWeekBefore ? posMod(week - 1, 36) : week;
+
+    const serviceID = serviceIDFromComponents(p.timetable, p.index, weekForThisEntry);
     const service = specificize(entry, serviceID, network);
 
-    const departureStop = service.stops.find(s => s.stop == stop.id);
+    const departureStop = service.stops.find(s => s.stop == stop);
     if (departureStop == null) { throw missingStop(); }
 
     return {
@@ -78,7 +104,7 @@ export function getDepartures(timetables: Timetables, network: Network,
         };
       })
     };
-  })
+  });
 
   return departures;
 }
@@ -90,9 +116,9 @@ type DeparturePossibility = {
 }
 
 /**
- * Returns every departure on the given day of the week from this given stop.
- * This includes departures part of the previous day's timetable that spill over
- * onto the next day.
+ * Returns a sorted list of every departure on the given day of the week from
+ * the given stop. This includes departures part of the previous day's timetable
+ * that spill over onto the next day.
  * @param yesterdayTimetables The timetables for the day before. Use
  * {@link timetablesForDay} to build this list.
  * @param todayTimetables The timetables for today. Use {@link timetablesForDay}
@@ -139,7 +165,7 @@ function getCompletePossibilities(yesterdayTimetables: Timetable[],
     maxTime
   )
 
-  const sorted = fromYesterday.concat(fromToday).sort(x => x.time.minuteOfDay);
+  const sorted = fromYesterday.concat(fromToday).sort((a, b) => a.time.minuteOfDay - b.time.minuteOfDay);
   return sorted;
 }
 
@@ -200,6 +226,8 @@ function getPossibilities(timetables: Timetable[], stop: StopID,
       });
     });
   });
+
+  console.log(possibilities.length, "possibilities");
 
   return possibilities;
 }
