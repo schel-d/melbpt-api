@@ -27,7 +27,9 @@ export type Departure = {
 }
 
 /**
- * Returns a list of next departures from a certain stop after a certain time.
+ * Returns a list of next departures from a certain stop after a certain time. Note that
+ * calling this function with a time over 100 days in the past or future causes undefined
+ * behaviour, due to the way the service ID week numbers loop every 36 weeks.
  * @param timetables The timetables object to get timetable data from.
  * @param network The network object to get stops/lines data from.
  * @param stop The stop to get the departures from.
@@ -36,11 +38,12 @@ export type Departure = {
  * if there aren't enough within a 14 day timespan to fill this quota.
  * @param reverse True if you want departures BEFORE the time rather than after.
  * @param filter A filter string, e.g. "platform-15a" or "nsdo narr", to filter
- * departures by before returning.
+ * departures by before returning. Note that if the filter string is invalid,
+ * this function won't crash, but will ignore that filter.
  */
 export function getDepartures(timetables: Timetables, network: Network,
   stop: Stop, time: DateTime, count: number, reverse: boolean,
-  filter: string): Departure[] {
+  filter: string | null): Departure[] {
 
   const lines = network.lines.stopAt(stop.id);
   const deps: Departure[] = [];
@@ -76,11 +79,15 @@ export function getDepartures(timetables: Timetables, network: Network,
  * Returns the same list of departures but filtered according to the given
  * filter string.
  * @param deps The departures to filter.
- * @param filterStr The filter string.
+ * @param filterStr A filter string, e.g. "platform-15a" or "nsdo narr", to
+ * filter departures by before returning. Note that if the filter string is
+ * invalid, this function won't crash, but will ignore that filter.
  * @param lines The line information (used for filter by line service).
  */
-function filterDepartures(deps: Departure[], filterStr: string,
+function filterDepartures(deps: Departure[], filterStr: string | null,
   lines: Line[]): Departure[] {
+
+  if (filterStr == null) { return deps; }
 
   const filters = filterStr.split(" ");
 
@@ -97,30 +104,36 @@ function filterDepartures(deps: Departure[], filterStr: string,
       deps = deps.filter(d => !d.setDownOnly);
     }
 
+    // "up"/"down" (without "direction-" prefix) filters out any services not
+    // generally travelling in the up/down direction respectively. These are
+    // general directions, so "up" includes "up-via-loop", "albury-up", etc.
     if (filter == "up") {
       deps = deps.filter(d => isDirectionUp(d.direction));
     }
-
     if (filter == "down") {
       deps = deps.filter(d => isDirectionDown(d.direction));
     }
 
+    // Filter by specific direction.
     if (filter.startsWith("direction-")) {
       const direction = filter.replace(/^direction-/g, "");
       deps = deps.filter(d => d.direction == direction);
     }
 
+    // Filter by line, e.g. "line-6" for Gippsland.
     if (filter.startsWith("line-")) {
       const line = filter.replace(/^line-/g, "");
       deps = deps.filter(d => d.line.toFixed() == line);
     }
 
+    // Filter by line service, e.g. "service-suburban" or "service-regional".
     if (filter.startsWith("service-")) {
       const service = filter.replace(/^service-/g, "");
       const filterLines = lines.filter(l => l.service == service).map(l => l.id);
       deps = deps.filter(d => filterLines.includes(d.line));
     }
 
+    // Filter by platform, e.g. "platform-15a" or "platform-2".
     if (filter.startsWith("platform-")) {
       const platform = filter.replace(/^platform-/g, "");
       deps = deps.filter(d => d.platform == platform);
