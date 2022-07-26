@@ -1,4 +1,3 @@
-import { requireNonNull } from "../utils";
 import { LineDictionary } from "./line-dictionary";
 import { StopDictionary } from "./stop-dictionary";
 
@@ -9,28 +8,29 @@ import { StopDictionary } from "./stop-dictionary";
 export class Network {
   /**
    * The value used to determine if the client has up-to-date network
-   * information. Should be the date of the data release, e.g. "2022-04-30".
+   * information. Usually the date of the data release, e.g. "2022-04-30".
    */
-  hash: string;
+  readonly hash: string;
 
   /**
    * Contains all the stops in the network.
    */
-  stops: StopDictionary;
+  readonly stops: StopDictionary;
 
   /**
    * Contains all the lines in the network.
    */
-  lines: LineDictionary;
+  readonly lines: LineDictionary;
 
   /**
    * Creates an empty network object.
-   * @param hash The value used to determine if the client has up-to-date network information. Should be the date of the data release, e.g. "2022-04-30".
+   * @param hash The value used to determine if the client has up-to-date
+   * network information. Usually the date of the data release, e.g.
+   * "2022-04-30".
    */
-  constructor(hash: string) {
-    requireNonNull(hash);
+  constructor(hash: string, stops: StopDictionary, lines: LineDictionary) {
     this.hash = hash;
-    this.stops = new StopDictionary();
-    this.lines = new LineDictionary();
+    this.stops = stops;
+    this.lines = lines;
   }
 }

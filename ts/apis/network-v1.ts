@@ -6,7 +6,7 @@ import { CityLoopLineRoute } from "../network/routes/city-loop-line-route";
  * other changes (modifications or removals) should instead be implemented as
  * a consecutive version of the API.
  */
-type NetworkApiV1Schema = {
+export type NetworkApiV1Schema = {
   hash: string,
   stops: {
     id: number,
@@ -34,9 +34,11 @@ type NetworkApiV1Schema = {
 
 /**
  * API that provides data about the stops and lines in the network. Importantly,
- * this API also includes a date, which will be used to inform the client
- * whether it needs to update its cached network information when it calls
- * future APIs (which will all also provide the network date).
+ * this API also includes hash value, which the client will send along when it
+ * makes API requests in the future. When the client sends an out-of-date hash
+ * to the other API's they will return the result of this API to the client in
+ * the same response, saving the client having to call this API themselves and
+ * the increased response time.
  * @param network The network information downloaded from the data server.
  */
 export function networkApiV1(network: Network): NetworkApiV1Schema {

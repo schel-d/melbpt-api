@@ -1,4 +1,3 @@
-import { requireNonNull } from "../../utils";
 import { Direction } from "../direction";
 import { LineRouteType } from "../line-enums";
 
@@ -12,14 +11,13 @@ export abstract class LineRoute {
    * The type of line route this is. Note {@link LineRoute} is an abstract
    * class.
    */
-  type: LineRouteType;
+  readonly type: LineRouteType;
 
   /**
    * Creates a new line route.
    * @param type See {@link LineRoute.type}
    */
   constructor(type: LineRouteType) {
-    requireNonNull(type);
     this.type = type;
   }
 

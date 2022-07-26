@@ -168,43 +168,43 @@ function extractZipFileNameFromUrl(url: string) {
 }
 
 /**
- * This data server does not provide `version` data (`url`).
+ * This data server does not provide "`version`" data (`url`).
  */
 const badVersionErr = (version: string, url: string) => new Error(
-  `This data server does not provide "${version}" data (${url})`
+  `This data server does not provide "${version}" data (${url}).`
 );
 
 /**
- * Neither `primary` or backup option `backup` could be downloaded.
+ * Neither "`primary`" or backup option "`backup`" could be downloaded.
  */
 const downloadFailed = (primary: string, backup: string) => new Error(
-  `Neither "${primary}" or backup option "${backup}" could be downloaded`
+  `Neither "${primary}" or backup option "${backup}" could be downloaded.`
 );
 
 /**
  * Failed to extract zip file.
  */
 const extractZipFailed = () => new Error(
-  `Failed to extract zip file`
+  `Failed to extract zip file.`
 );
 
 /**
- * There was not a json file at `url`.
+ * There was not a json file at "`url`".
  */
 const badManifestUrl = (url: string) => new Error(
-  `There was not a json file at "${url}"`
+  `There was not a json file at "${url}".`
 );
 
 /**
- * Json file at `url` was in an unexpected format.
+ * Json file at "`url`" was in an unexpected format.
  */
 const badManifestFormat = (url: string) => new Error(
-  `Json file at "${url}" was in an unexpected format`
+  `Json file at "${url}" was in an unexpected format.`
 );
 
 /**
- * `path` was not a zip file.
+ * "`path`" was not a zip file.
  */
 const expectedZipFile = (path: string) => new Error(
-  `"${path}" was not a zip file`
+  `"${path}" was not a zip file.`
 );

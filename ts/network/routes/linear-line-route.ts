@@ -1,4 +1,3 @@
-import { requireNonNull } from "../../utils";
 import { Direction } from "../direction";
 import { StopID } from "../id";
 import { LineRoute } from "./line-route";
@@ -13,20 +12,20 @@ export class LinearLineRoute extends LineRoute {
    * The array of stops on this line, in order, starting with the down terminus
    * (e.g. Pakenham) first.
    */
-  stops: StopID[];
+  readonly stops: StopID[];
 
   /**
    * The name of the up terminus, e.g. "Southern Cross". Provided to the line
    * object since it has no access to stop names and uses it for direction
    * names.
    */
-  upTerminusName: string;
+  readonly upTerminusName: string;
 
   /**
    * The name of the down terminus, e.g. "Pakenham". Provided to the line object
    * since it has no access to stop names and uses it for direction names.
    */
-  downTerminusName: string;
+  readonly downTerminusName: string;
 
   /**
    * Creates a new linear line route.
@@ -38,7 +37,6 @@ export class LinearLineRoute extends LineRoute {
     downTerminusName: string) {
 
     super("linear");
-    requireNonNull(stops, upTerminusName, downTerminusName);
     this.stops = stops;
     this.upTerminusName = upTerminusName;
     this.downTerminusName = downTerminusName;

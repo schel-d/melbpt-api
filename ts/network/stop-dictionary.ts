@@ -5,7 +5,7 @@ import { Stop } from "./stop";
  * A dictionary where stop data be can accessed by ID.
  */
 export class StopDictionary {
-  _inner: { [stop: StopID]: Stop } = {};
+  readonly _inner: { [stop: StopID]: Stop } = {};
 
   /**
    * Add a stop to the dictionary.

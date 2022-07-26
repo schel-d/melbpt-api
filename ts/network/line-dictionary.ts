@@ -1,11 +1,11 @@
-import { LineID } from "./id";
+import { LineID, StopID } from "./id";
 import { Line } from "./line";
 
 /**
  * A dictionary where line data be can accessed by ID.
  */
 export class LineDictionary {
-  _inner: { [line: LineID]: Line } = {};
+  readonly _inner: { [line: LineID]: Line } = {};
 
   /**
    * Add a line to the dictionary.
@@ -63,5 +63,9 @@ export class LineDictionary {
    */
   count(): number {
     return this.ids().length;
+  }
+
+  stopAt(stop: StopID): Line[] {
+    return this.values().filter(l => l.allStops.includes(stop));
   }
 }

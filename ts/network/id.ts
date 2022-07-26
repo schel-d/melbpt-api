@@ -1,6 +1,6 @@
 /**
- * Represents a unique integer identifier for this stop. Doesn't necessarily
- * match the PTV API, so this cannot be expected to be used for that purpose.
+ * Represents a unique integer identifier for a stop. Doesn't necessarily
+ * match the PTV API, so it cannot be expected to be used for that purpose.
  */
 export type StopID = number
 
@@ -12,7 +12,7 @@ export type StopID = number
 export type PlatformID = string
 
 /**
- * Represents a unique integer identifier for this line. Can be any number that
+ * Represents a unique integer identifier for a line. Can be any number that
  * hasn't already been used (has no ties to the PTV API).
  */
 export type LineID = number
