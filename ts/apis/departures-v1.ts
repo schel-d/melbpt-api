@@ -1,12 +1,24 @@
 import { DateTime } from "luxon";
 import { Network } from "../network/network";
-import { InvalidParamError, retrieveRequiredParam } from "../serve-api";
+import { InvalidParamError, retrieveParam, retrieveRequiredParam } from "../serve-api";
 import { getDepartures } from "../timetable/get-departures";
 import { encodeServiceID } from "../timetable/id";
-import { melbTimeZone } from "../timetable/time-utils";
 import { Timetables } from "../timetable/timetables";
 import { parseIntNull } from "../utils";
 import { networkApiV1, NetworkApiV1Schema } from "./network-v1";
+
+/**
+ * Due to the way service ID week numbers loop every 36 weeks, the getDepartures
+ * method has undefined behaviour for times more than 100 days in the past or
+ * future. Therefore the API limits the consumer to this date range.
+ */
+const maxDaysFromPresent = 100;
+
+/**
+ * To avoid stressing the server unnecessarily, the maximum number of departures
+ * is capped at 50.
+ */
+const maxCount = 50;
 
 /**
  * The format of the response from this API. Fields can be added here, but any
@@ -42,7 +54,7 @@ export function departuresApiV1(params: unknown, network: Network,
   const timeString = retrieveRequiredParam(params, "time");
   const countString = retrieveRequiredParam(params, "count");
   const reverseString = retrieveRequiredParam(params, "reverse");
-  const filterString = retrieveRequiredParam(params, "filter");
+  const filterString = retrieveParam(params, "filter");
   const hash = retrieveRequiredParam(params, "hash");
 
   const stopID = parseIntNull(stopString);
@@ -54,19 +66,19 @@ export function departuresApiV1(params: unknown, network: Network,
   const time = DateTime.fromISO(timeString);
   if (!time.isValid) { throw invalidTimeError(timeString); }
 
-  // Todo: Throw an error if the time if outside the 30 day boundary.
+  const daysAway = time.diffNow().as("days");
+  if (daysAway < -maxDaysFromPresent || daysAway > maxDaysFromPresent) {
+    throw timeRangeError(maxDaysFromPresent);
+  }
 
   const count = parseIntNull(countString);
   if (count == null || count < 1) { throw invalidIntError(countString); }
-  if (count > 50) { throw countTooLarge(count, 50); }
+  if (count > maxCount) { throw countTooLarge(count, maxCount); }
 
   const reverse = reverseString == "true";
   if (!["true", "false"].includes(reverseString)) {
     throw invalidBoolError(reverseString);
   }
-
-  // Todo: Validate the filter which might be something like "platform-2" or
-  // "line-10".
 
   const departures = getDepartures(
     timetables, network, stop, time, count, reverse, filterString
@@ -113,6 +125,13 @@ const stopNotFound = (id: number) => new InvalidParamError(
  */
 const invalidTimeError = (value: string) => new InvalidParamError(
   `"${value}" is not a valid ISO6081 time.`
+);
+
+/**
+ * Cannot get departures over `range` days in the past/future.
+ */
+const timeRangeError = (range: number) => new InvalidParamError(
+  `Cannot get departures over ${range.toFixed()} days in the past/future.`
 );
 
 /**
