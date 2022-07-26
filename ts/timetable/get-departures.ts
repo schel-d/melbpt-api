@@ -1,8 +1,9 @@
 import { DateTime } from "luxon"
+import { isDirectionDown, isDirectionUp } from "../network/direction"
 import { DirectionID, LineID, PlatformID, StopID } from "../network/id"
+import { Line } from "../network/line"
 import { Network } from "../network/network"
 import { Stop } from "../network/stop"
-import { posMod } from "../utils"
 import { ServiceID, serviceIDFromComponents, TimetableID } from "./id"
 import { LocalDate } from "./local-date"
 import { LocalTime } from "./local-time"
@@ -25,65 +26,126 @@ export type Departure = {
   }[]
 }
 
+/**
+ * Returns a list of next departures from a certain stop after a certain time.
+ * @param timetables The timetables object to get timetable data from.
+ * @param network The network object to get stops/lines data from.
+ * @param stop The stop to get the departures from.
+ * @param time The earliest (or latest if in reverse mode) departure to get.
+ * @param count The number of departures to get. A lower value may be returned
+ * if there aren't enough within a 14 day timespan to fill this quota.
+ * @param reverse True if you want departures BEFORE the time rather than after.
+ * @param filter A filter string, e.g. "platform-15a" or "nsdo narr", to filter
+ * departures by before returning.
+ */
 export function getDepartures(timetables: Timetables, network: Network,
   stop: Stop, time: DateTime, count: number, reverse: boolean,
   filter: string): Departure[] {
 
-  const lines = network.lines.stopAt(stop.id).map(l => l.id);
+  const lines = network.lines.stopAt(stop.id);
+  const deps: Departure[] = [];
 
   const melbTime = time.setZone(melbTimeZone);
-
   let iterDay = LocalDate.fromLuxon(melbTime);
   let iterOffset = 0;
-  let yesterdayTimetables = timetablesForDay(iterDay.yesterday(), timetables, lines);
 
-  let departures: Departure[] = [];
-
-  while (iterOffset < 7) {
-    const todayTimetables = timetablesForDay(iterDay, timetables, lines);
-    const dayOfWeek = DayOfWeek.fromLuxon(melbTime);
-
-    const minTime = iterOffset == 0 ? LocalTime.fromLuxon(melbTime) : null;
+  while (iterOffset <= 14) {
+    const minTime = iterOffset == 0 && !reverse ? LocalTime.fromLuxon(melbTime) : null;
+    const maxTime = iterOffset == 0 && reverse ? LocalTime.fromLuxon(melbTime) : null;
 
     const possibilities = getCompletePossibilities(
-      yesterdayTimetables, todayTimetables, stop.id, dayOfWeek, minTime, null
+      timetables, lines.map(l => l.id), stop.id, iterDay, reverse, minTime, maxTime
     );
 
-    const week = getWeekNumber(iterDay);
-    departures.push(...possibilityToService(
-      possibilities, timetables, network, stop.id, dayOfWeek, week
-    ));
+    const preFilterDeps = possibilitiesToDeps(
+      possibilities, timetables, network, stop.id
+    );
 
-    // Todo: filter departures however you'd like...
+    deps.push(...filterDepartures(preFilterDeps, filter, lines));
 
-    if (departures.length > count) {
-      break;
-    }
+    if (deps.length >= count) { break; }
 
-    iterDay = iterDay.tomorrow();
+    iterDay = reverse ? iterDay.yesterday() : iterDay.tomorrow();
     iterOffset++;
-    yesterdayTimetables = todayTimetables;
   }
 
-  return departures;
+  return deps.slice(0, count);
 }
 
-function possibilityToService(possibilities: DeparturePossibility[],
-  timetables: Timetables, network: Network, stop: StopID, dayOfWeek: DayOfWeek,
-  week: number): Departure[] {
+/**
+ * Returns the same list of departures but filtered according to the given
+ * filter string.
+ * @param deps The departures to filter.
+ * @param filterStr The filter string.
+ * @param lines The line information (used for filter by line service).
+ */
+function filterDepartures(deps: Departure[], filterStr: string,
+  lines: Line[]): Departure[] {
+
+  const filters = filterStr.split(" ");
+
+  for (let filter of filters) {
+    // "narr" stands for no arrivals. Removes services that terminate at this
+    // stop.
+    if (filter == "narr") {
+      deps = deps.filter(d => d.stops[d.stops.length - 1].stop != d.stop)
+    }
+
+    // "nsdo" stands for no set down onlys. Removes services that are set down
+    // only, e.g. up Gippsland services at Caulfield.
+    if (filter == "nsdo") {
+      deps = deps.filter(d => !d.setDownOnly);
+    }
+
+    if (filter == "up") {
+      deps = deps.filter(d => isDirectionUp(d.direction));
+    }
+
+    if (filter == "down") {
+      deps = deps.filter(d => isDirectionDown(d.direction));
+    }
+
+    if (filter.startsWith("direction-")) {
+      const direction = filter.replace(/^direction-/g, "");
+      deps = deps.filter(d => d.direction == direction);
+    }
+
+    if (filter.startsWith("line-")) {
+      const line = filter.replace(/^line-/g, "");
+      deps = deps.filter(d => d.line.toFixed() == line);
+    }
+
+    if (filter.startsWith("service-")) {
+      const service = filter.replace(/^service-/g, "");
+      const filterLines = lines.filter(l => l.service == service).map(l => l.id);
+      deps = deps.filter(d => filterLines.includes(d.line));
+    }
+
+    if (filter.startsWith("platform-")) {
+      const platform = filter.replace(/^platform-/g, "");
+      deps = deps.filter(d => d.platform == platform);
+    }
+  }
+
+  return deps;
+}
+
+/**
+ * Converts {@link DeparturePossibility} objects to {@link Departure}, using
+ * the {@link specificize} process.
+ * @param possibilities The departure possibilities list.
+ * @param timetables The timetables object, used for specificizing the departures.
+ * @param network The network object, used for specificizing the departures.
+ * @param stop The stop the departures depart from.
+ */
+function possibilitiesToDeps(possibilities: DeparturePossibility[],
+  timetables: Timetables, network: Network, stop: StopID): Departure[] {
 
   const departures = possibilities.map(p => {
     const entry = timetables.getEntryByIndex(p.timetable, p.index);
     if (entry == null) { throw missingEntry(p.timetable, p.index); }
 
-    // If this entries day of week is not the same as the given day of week,
-    // then it must've occured yesterday. If it is greater than the given one
-    // then yesterday must've been Sunday and today Monday, so it occured last
-    // week.
-    const occursWeekBefore = entry.dayOfWeek.daysSinceMonday > dayOfWeek.daysSinceMonday;
-    const weekForThisEntry = occursWeekBefore ? posMod(week - 1, 36) : week;
-
-    const serviceID = serviceIDFromComponents(p.timetable, p.index, weekForThisEntry);
+    const serviceID = serviceIDFromComponents(p.timetable, p.index, p.week);
     const service = specificize(entry, serviceID, network);
 
     const departureStop = service.stops.find(s => s.stop == stop);
@@ -112,6 +174,7 @@ function possibilityToService(possibilities: DeparturePossibility[],
 type DeparturePossibility = {
   timetable: TimetableID,
   index: number,
+  week: number,
   time: LocalTime
 }
 
@@ -130,42 +193,44 @@ type DeparturePossibility = {
  * @param maxTime Use this to filter departures by a maximum time. This time
  * cannot occur on the next day.
  */
-function getCompletePossibilities(yesterdayTimetables: Timetable[],
-  todayTimetables: Timetable[], stop: StopID, dayOfWeek: DayOfWeek,
-  minTime: LocalTime | null, maxTime: LocalTime | null): DeparturePossibility[] {
+function getCompletePossibilities(timetables: Timetables, lines: LineID[],
+  stop: StopID, date: LocalDate, reverse: boolean, minTime: LocalTime | null,
+  maxTime: LocalTime | null): DeparturePossibility[] {
 
   if (minTime?.isNextDay() || maxTime?.isNextDay()) { throw illegalTime(); }
+
+  const todayTimetables = timetablesForDay(date, timetables, lines);
+  const yesterdayTimetables = timetablesForDay(date.yesterday(), timetables, lines);
 
   // When querying the services from yesterday, we only want the ones after
   // midnight. If the caller gives a further restriction we need to make it
   // 24 hours later from yesterday's point of view.
-  let minTimeYesterday = minTime != null ?
-    minTime.tomorrow() : LocalTime.startOfTomorrow();
-  let maxTimeYesterday = maxTime != null ?
-    maxTime.tomorrow() : null;
 
   const fromYesterday = getPossibilities(
     yesterdayTimetables,
     stop,
-    dayOfWeek.yesterday(),
-    minTimeYesterday,
-    maxTimeYesterday
+    date.yesterday(),
+    minTime != null ? minTime.tomorrow() : LocalTime.startOfTomorrow(),
+    maxTime != null ? maxTime.tomorrow() : null
   ).map(d => {
     return {
       timetable: d.timetable,
       index: d.index,
+      week: d.week,
       time: d.time.yesterday()
     }
   });
+
   const fromToday = getPossibilities(
     todayTimetables,
     stop,
-    dayOfWeek,
+    date,
     minTime,
-    maxTime
+    maxTime != null ? maxTime : LocalTime.startOfTomorrow()
   )
 
-  const sorted = fromYesterday.concat(fromToday).sort((a, b) => a.time.minuteOfDay - b.time.minuteOfDay);
+  const sorted = fromYesterday.concat(fromToday).sort((a, b) =>
+    (reverse ? -1 : 1) * (a.time.minuteOfDay - b.time.minuteOfDay));
   return sorted;
 }
 
@@ -183,8 +248,11 @@ function getCompletePossibilities(yesterdayTimetables: Timetable[],
  * @param maxTime Use this to filter a maximum time.
  */
 function getPossibilities(timetables: Timetable[], stop: StopID,
-  dayOfWeek: DayOfWeek, minTime: LocalTime | null,
+  date: LocalDate, minTime: LocalTime | null,
   maxTime: LocalTime | null): DeparturePossibility[] {
+
+  const dayOfWeek = DayOfWeek.fromLuxon(date.toUTCDateTime());
+  const week = getWeekNumber(date);
 
   const possibilities: DeparturePossibility[] = [];
 
@@ -219,15 +287,16 @@ function getPossibilities(timetables: Timetable[], stop: StopID,
 
         // If it doesn't, add it to the results.
         if (!breaksMinTime && !breaksMaxTime) {
-          possibilities.push(
-            { timetable: t.id, index: e.index + indexOffset, time: stopTime }
-          );
+          possibilities.push({
+            timetable: t.id,
+            index: e.index + indexOffset,
+            week: week,
+            time: stopTime
+          });
         }
       });
     });
   });
-
-  console.log(possibilities.length, "possibilities");
 
   return possibilities;
 }

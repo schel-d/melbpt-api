@@ -58,6 +58,7 @@ export function departuresApiV1(params: unknown, network: Network,
 
   const count = parseIntNull(countString);
   if (count == null || count < 1) { throw invalidIntError(countString); }
+  if (count > 50) { throw countTooLarge(count, 50); }
 
   const reverse = reverseString == "true";
   if (!["true", "false"].includes(reverseString)) {
@@ -71,33 +72,26 @@ export function departuresApiV1(params: unknown, network: Network,
     timetables, network, stop, time, count, reverse, filterString
   );
 
-  return departures.map(d => d.timeUTC.setZone(melbTimeZone).toFormat("ccc HH:mm") + " " + d.direction + " " + encodeServiceID(d.service));
-
-  // return {
-  //   departures: departures.map(d => {
-  //     return {
-
-  //       // <TEMP>
-  //       localTime: d.timeUTC.setZone(melbTimeZone).toFormat("ccc HH:mm"),
-  //       // </TEMP>
-
-  //       stop: d.stop,
-  //       timeUTC: d.timeUTC.toISO(),
-  //       line: d.line,
-  //       service: encodeServiceID(d.service),
-  //       direction: d.direction,
-  //       platform: d.platform,
-  //       setDownOnly: d.setDownOnly,
-  //       stops: d.stops.map(s => {
-  //         return {
-  //           stop: s.stop,
-  //           timeUTC: s.timeUTC.toISO()
-  //         };
-  //       })
-  //     };
-  //   }),
-  //   network: network.hash == hash ? null : networkApiV1(network)
-  // };
+  return {
+    departures: departures.map(d => {
+      return {
+        stop: d.stop,
+        timeUTC: d.timeUTC.toISO(),
+        line: d.line,
+        service: encodeServiceID(d.service),
+        direction: d.direction,
+        platform: d.platform,
+        setDownOnly: d.setDownOnly,
+        stops: d.stops.map(s => {
+          return {
+            stop: s.stop,
+            timeUTC: s.timeUTC.toISO()
+          };
+        })
+      };
+    }),
+    network: network.hash == hash ? null : networkApiV1(network)
+  };
 }
 
 /**
@@ -133,4 +127,11 @@ const invalidIntError = (value: string) => new InvalidParamError(
  */
 const invalidBoolError = (value: string) => new InvalidParamError(
   `"${value}" is not a boolean value.`
+);
+
+/**
+ * `maximum` is the limit for count, so "`value`" is not allowed.
+ */
+const countTooLarge = (value: number, maximum: number) => new InvalidParamError(
+  `${maximum.toFixed()} is the limit for count, so "${value.toFixed()}" is not allowed.`
 );
