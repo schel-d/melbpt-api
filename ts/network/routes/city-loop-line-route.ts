@@ -1,4 +1,7 @@
-import { CityLoopPortal, FLINDERS_STREET_NAME, stopsToFlindersDirect, stopsToFlindersViaLoop } from "../city-loop";
+import {
+  CityLoopPortal, FLINDERS_STREET_NAME, stopsToFlindersDirect,
+  stopsToFlindersViaLoop
+} from "../city-loop";
 import { Direction } from "../direction";
 import { StopID } from "../id";
 import { LineRoute } from "./line-route";

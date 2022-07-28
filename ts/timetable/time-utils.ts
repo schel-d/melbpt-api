@@ -87,7 +87,7 @@ export class DayOfWeek {
    * Returns the day of week of the day after this one.
    */
   tomorrow(): DayOfWeek {
-    return new DayOfWeek((this.daysSinceMonday + 1) % 7)
+    return new DayOfWeek((this.daysSinceMonday + 1) % 7);
   }
 
   /**
@@ -106,4 +106,4 @@ export class DayOfWeek {
 const invalidDaysSinceMonday = (daysSinceMonday: number) => new Error(
   `"${daysSinceMonday}" is not a valid days since Monday number for a day of ` +
   `week.`
-)
+);

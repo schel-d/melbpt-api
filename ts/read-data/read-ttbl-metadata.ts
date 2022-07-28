@@ -1,7 +1,7 @@
 import { LineID } from "../network/id";
 import { TimetableID } from "../timetable/id";
 import { LocalDate } from "../timetable/local-date";
-import { parseTimetableType, TimetableType, TimetableTypes } from "../timetable/timetable-type";
+import { parseTimetableType, TimetableType } from "../timetable/timetable-type";
 import { parseIntThrow } from "../utils";
 import { TtblSection } from "./read-ttbl";
 

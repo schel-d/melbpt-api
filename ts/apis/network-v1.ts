@@ -52,10 +52,10 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
           return {
             id: p.id,
             name: p.name
-          }
+          };
         }),
         urlName: s.urlName
-      }
+      };
     }),
     lines: network.lines.values().map(l => {
       // If this is a city loop line, then include the portal. "undefined" is
@@ -77,9 +77,9 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
             id: d.id,
             name: d.name,
             stops: d.stops
-          }
+          };
         })
-      }
+      };
     })
   };
 }

@@ -1,4 +1,4 @@
-import { DirectionID, LineID } from "../network/id"
+import { DirectionID, LineID } from "../network/id";
 import { TimetableID } from "./id";
 import { LocalDate } from "./local-date";
 import { DayOfWeek } from "./time-utils";
@@ -116,7 +116,7 @@ export class Timetable {
       dayOfWeek: result.dayOfWeek,
       index: result.entry.index,
       times: result.entry.times
-    }
+    };
   }
 }
 

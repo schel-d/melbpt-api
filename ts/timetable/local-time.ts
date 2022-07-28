@@ -35,7 +35,7 @@ export class LocalTime {
    * @param value The string, e.g. "2:04" or "15:28".
    * @param nextDay Whether this time occurs on the next day.
    */
-  static parse(value: string, nextDay: boolean = false): LocalTime {
+  static parse(value: string, nextDay = false): LocalTime {
     // Checks for 1 or 2 digits, a colon, then 2 digits.
     const correctFormat = /^[0-9]{1,2}:[0-9]{2}$/g.test(value);
     if (!correctFormat) { throw badTimeString(value); }

@@ -55,6 +55,6 @@ export class LinearLineRoute extends LineRoute {
         this.downTerminusName,
         [...this.stops].reverse()
       )
-    ]
+    ];
   }
 }

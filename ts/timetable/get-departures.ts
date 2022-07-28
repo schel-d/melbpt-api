@@ -1,16 +1,16 @@
-import { DateTime } from "luxon"
-import { isDirectionDown, isDirectionUp } from "../network/direction"
-import { DirectionID, LineID, PlatformID, StopID } from "../network/id"
-import { Line } from "../network/line"
-import { Network } from "../network/network"
-import { Stop } from "../network/stop"
-import { ServiceID, serviceIDFromComponents, TimetableID } from "./id"
-import { LocalDate } from "./local-date"
-import { LocalTime } from "./local-time"
-import { getWeekNumber, specificize } from "./specificize"
-import { DayOfWeek, melbTimeZone } from "./time-utils"
-import { Timetable } from "./timetable"
-import { Timetables } from "./timetables"
+import { DateTime } from "luxon";
+import { isDirectionDown, isDirectionUp } from "../network/direction";
+import { DirectionID, LineID, PlatformID, StopID } from "../network/id";
+import { Line } from "../network/line";
+import { Network } from "../network/network";
+import { Stop } from "../network/stop";
+import { ServiceID, serviceIDFromComponents, TimetableID } from "./id";
+import { LocalDate } from "./local-date";
+import { LocalTime } from "./local-time";
+import { getWeekNumber, specificize } from "./specificize";
+import { DayOfWeek, melbTimeZone } from "./time-utils";
+import { Timetable } from "./timetable";
+import { Timetables } from "./timetables";
 
 export type Departure = {
   stop: StopID,
@@ -91,11 +91,11 @@ function filterDepartures(deps: Departure[], filterStr: string | null,
 
   const filters = filterStr.split(" ");
 
-  for (let filter of filters) {
+  for (const filter of filters) {
     // "narr" stands for no arrivals. Removes services that terminate at this
     // stop.
     if (filter == "narr") {
-      deps = deps.filter(d => d.stops[d.stops.length - 1].stop != d.stop)
+      deps = deps.filter(d => d.stops[d.stops.length - 1].stop != d.stop);
     }
 
     // "nsdo" stands for no set down onlys. Removes services that are set down
@@ -231,7 +231,7 @@ function getCompletePossibilities(timetables: Timetables, lines: LineID[],
       index: d.index,
       week: d.week,
       time: d.time.yesterday()
-    }
+    };
   });
 
   const fromToday = getPossibilities(
@@ -240,7 +240,7 @@ function getCompletePossibilities(timetables: Timetables, lines: LineID[],
     date,
     minTime,
     maxTime != null ? maxTime : LocalTime.startOfTomorrow()
-  )
+  );
 
   const sorted = fromYesterday.concat(fromToday).sort((a, b) =>
     (reverse ? -1 : 1) * (a.time.minuteOfDay - b.time.minuteOfDay));
@@ -253,10 +253,10 @@ function getCompletePossibilities(timetables: Timetables, lines: LineID[],
  * Note this function DOES NOT give services that are part of the previous days
  * timetable, but whose departures for this stop occur after midnight. Use
  * {@link getCompletePossibilities} for that.
+ *
  * @param timetables The timetables to retrieve services from. Use
  * {@link timetablesForDay} to build this list.
  * @param stop The stop to get departures of.
- * @param dayOfWeek The day of week to look at.
  * @param minTime Use this to filter a minimum time.
  * @param maxTime Use this to filter a maximum time.
  */
@@ -380,4 +380,4 @@ const missingStop = () => new Error(
  */
 const illegalTime = () => new Error(
   `Time constraints cannot be next day.`
-)
+);
