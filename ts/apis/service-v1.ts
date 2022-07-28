@@ -1,6 +1,7 @@
 import { Network } from "../network/network";
 import { InvalidParamError, retrieveRequiredParam } from "../serve-api";
-import { encodeServiceID, getServiceIDComponents, safeParseServiceID } from "../timetable/id";
+import { encodeServiceID, getServiceIDComponents, safeParseServiceID }
+  from "../timetable/id";
 import { specificize } from "../timetable/specificize";
 import { Timetables } from "../timetable/timetables";
 import { networkApiV1, NetworkApiV1Schema } from "./network-v1";
@@ -58,7 +59,7 @@ export function serviceApiV1(params: unknown, network: Network,
           timeUTC: s.timeUTC.toISO(),
           platform: s.platform,
           setDownOnly: s.setDownOnly
-        }
+        };
       })
     },
     network: network.hash == hash ? null : networkApiV1(network)

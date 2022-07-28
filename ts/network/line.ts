@@ -85,11 +85,11 @@ export class Line {
  * @param directions The directions to extract the list of stops from.
  */
 function getAllStops(directions: Direction[]): StopID[] {
-  let results: StopID[] = [];
+  const results: StopID[] = [];
   directions.forEach(d => d.stops.forEach(s => {
     if (!results.includes(s)) {
-      results.push(s)
+      results.push(s);
     }
-  }))
+  }));
   return results;
 }

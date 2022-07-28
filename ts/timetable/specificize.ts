@@ -3,7 +3,7 @@ import { Network } from "../network/network";
 import { posMod } from "../utils";
 import { guesstimatePlatforms, PlatformClues } from "./guesstimate-platforms";
 import { getServiceIDComponents, ServiceID } from "./id";
-import { isLocalDate, LocalDate } from "./local-date";
+import { LocalDate } from "./local-date";
 import { Service, ServiceStop } from "./service";
 import { isSetDownOnly } from "./set-down-only";
 import { FullTimetableEntry } from "./timetable";
@@ -45,7 +45,7 @@ export function getMondayDate(week: number, now = DateTime.now()): LocalDate {
 
   // Calculate how many weeks it is until the next week with the requested
   // number. Also calculate how many week it has been since the previous one.
-  const difference = week - currWeek
+  const difference = week - currWeek;
   const nextWeekOffset = difference >= 0 ? difference : difference + 36;
   const prevWeekOffset = difference < 0 ? difference : difference - 36;
 
@@ -93,7 +93,7 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
       stoppingPattern: stoppingPattern,
       timetabledDayOfWeek: entry.dayOfWeek,
       timeUTC: timeUTC
-    }
+    };
     const platform = guesstimatePlatforms(network, t.stop, clues);
 
     const sdo = isSetDownOnly(network, t.stop, entry.line, entry.direction);
@@ -103,7 +103,7 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
       timeUTC: timeUTC,
       platform: platform,
       setDownOnly: sdo
-    }
+    };
   });
 
   return new Service(id, entry.line, entry.direction, entry.dayOfWeek, stops);
@@ -114,4 +114,4 @@ export function specificize(entry: FullTimetableEntry, id: ServiceID,
  */
 const invalidWeekNumber = (week: number) => new Error(
   `"${week}" is not a valid week number.`
-)
+);

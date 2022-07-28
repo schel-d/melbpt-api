@@ -48,7 +48,7 @@ type DeparturesApiV1Schema = {
  * network hash.
  */
 export function departuresApiV1(params: unknown, network: Network,
-  timetables: Timetables): any {
+  timetables: Timetables): DeparturesApiV1Schema {
 
   const stopString = retrieveRequiredParam(params, "stop");
   const timeString = retrieveRequiredParam(params, "time");

@@ -1,6 +1,5 @@
 import { isDirectionUp } from "../network/direction";
 import { DirectionID, LineID, StopID } from "../network/id";
-import { LineService } from "../network/line-enums";
 import { Network } from "../network/network";
 
 /**

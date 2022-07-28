@@ -1,6 +1,6 @@
 import { DirectionID } from "../network/id";
 import { DayOfWeek } from "./time-utils";
-import { TimetableEntry, TimetableEntryStop } from "./timetable-entry";
+import { TimetableEntry } from "./timetable-entry";
 import { WeekDayRange } from "./week-day-range";
 
 /**
@@ -96,4 +96,4 @@ type TimetableEntryAndDayOfWeek = {
 const indexMismatch = () => new Error(
   "Some entries in this timetable section were given incorrect indices, or " +
   "this section's starting index was incorrect."
-)
+);

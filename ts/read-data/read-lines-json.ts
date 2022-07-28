@@ -130,7 +130,7 @@ function getDownTerminusName(stops: StopID[], line: LineID,
 function getUpTerminusName(stops: StopID[], line: LineID,
   stopsData: StopDictionary): string {
 
-  const stop = stops[stops.length - 1]
+  const stop = stops[stops.length - 1];
   const name = stopsData.get(stop)?.name;
   if (name == null) {
     throw noTerminusData("up", line, stop);

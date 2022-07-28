@@ -29,7 +29,7 @@ export class BranchLineRoute extends LineRoute {
 
   // JSDoc inherited from base class.
   createDirections(): Direction[] {
-    let result: Direction[] = [];
+    const result: Direction[] = [];
     this.branches.forEach(b => {
       result.push(new Direction(
         b.id + "-up",
@@ -41,7 +41,7 @@ export class BranchLineRoute extends LineRoute {
         b.downTerminusName,
         [...b.stops].reverse()
       ));
-    })
+    });
     return result;
   }
 }

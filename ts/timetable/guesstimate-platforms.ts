@@ -56,8 +56,8 @@ export function guesstimatePlatforms(network: Network, stop: StopID,
         const baseClause = clause.replace(/^!/g, "");
         const result = processClause(baseClause, lineData, clues);
         return clause.startsWith("!") ? !result : result;
-      })
-    })
+      });
+    });
   });
 
   // If after narrowing down the options only one platform remains, then return
@@ -142,4 +142,4 @@ function idPattern(clause: string, prefix: string,
  */
 const dataMissing = (stop: StopID, line: LineID) => new Error(
   `Either stop="${stop}" or line="${line}" is invalid.`
-)
+);

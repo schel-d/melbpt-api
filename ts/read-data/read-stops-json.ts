@@ -48,12 +48,12 @@ export function readStopsJson(json: unknown): StopDictionary {
  * @param json The platforms json object.
  */
 function readPlatformsJson(json: PlatformsJson): Platform[] {
-  const results: Platform[] = []
+  const results: Platform[] = [];
 
   json.forEach(p => {
     const platform = new Platform(p.id, p.name, p.rules);
     results.push(platform);
-  })
+  });
 
   return results;
 }
