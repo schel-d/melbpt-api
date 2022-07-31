@@ -15,7 +15,8 @@ export type NetworkApiV1Schema = {
       id: string,
       name: string
     }[],
-    urlName: string
+    urlName: string,
+    tags: string[]
   }[],
   lines: {
     id: number,
@@ -23,6 +24,8 @@ export type NetworkApiV1Schema = {
     color: string,
     service: string,
     routeType: string,
+    tags: string[],
+    description: string,
     routeLoopPortal?: string,
     directions: {
       id: string,
@@ -54,7 +57,8 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
             name: p.name
           };
         }),
-        urlName: s.urlName
+        urlName: s.urlName,
+        tags: s.tags
       };
     }),
     lines: network.lines.values().map(l => {
@@ -71,6 +75,8 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
         color: l.color,
         service: l.service,
         routeType: l.route.type,
+        tags: l.tags,
+        description: l.description,
         routeLoopPortal: routeLoopPortal,
         directions: l.directions.map(d => {
           return {

@@ -43,6 +43,16 @@ export class Line {
   readonly ptvRoutes: PTVRouteID[];
 
   /**
+   * A list of tags used in search. Does not include the line's name.
+   */
+  readonly tags: string[];
+
+  /**
+   * A human-friendly short description of this line.
+   */
+  readonly description: string;
+
+  /**
    * Information about each direction this line can run in. Created by the route
    * upon construction.
    */
@@ -62,9 +72,13 @@ export class Line {
    * @param color See {@link Line.color}.
    * @param service See {@link Line.service}.
    * @param route See {@link Line.route}.
+   * @param ptvRoutes See {@link Line.ptvRoutes}.
+   * @param tags See {@link Line.tags}.
+   * @param description See {@link Line.description}.
    */
   constructor(id: LineID, name: string, color: LineColor, service: LineService,
-    route: LineRoute, ptvRoutes: PTVRouteID[]) {
+    route: LineRoute, ptvRoutes: PTVRouteID[], tags: string[],
+    description: string) {
 
     this.id = id;
     this.name = name;
@@ -72,6 +86,8 @@ export class Line {
     this.service = service;
     this.route = route;
     this.ptvRoutes = ptvRoutes;
+    this.tags = tags;
+    this.description = description;
 
     this.directions = this.route.createDirections();
     this.allStops = getAllStops(this.directions);
