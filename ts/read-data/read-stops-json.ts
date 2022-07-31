@@ -16,7 +16,8 @@ const StopsJson = z.object({
     platforms: PlatformsJson,
     urlName: z.string(),
     adjacent: z.number().int().array(),
-    ptvID: z.number().int()
+    ptvID: z.number().int(),
+    tags: z.string().array()
   }).array()
 });
 
@@ -35,7 +36,9 @@ export function readStopsJson(json: unknown): StopDictionary {
 
   stopsJson.stops.forEach(s => {
     const platforms = readPlatformsJson(s.platforms);
-    const stop = new Stop(s.id, s.name, platforms, s.urlName, s.adjacent, s.ptvID);
+    const stop = new Stop(
+      s.id, s.name, platforms, s.urlName, s.adjacent, s.ptvID, s.tags
+    );
     results.add(stop);
   });
 

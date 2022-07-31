@@ -11,17 +11,17 @@ export class Stop {
    * A unique identifier for this stop (may not match the ID used by the PTV
    * API). See {@link StopID}.
    */
-  id: StopID;
+  readonly id: StopID;
 
   /**
    * The display name of this stop.
    */
-  name: string;
+  readonly name: string;
 
   /**
    * Data about the platforms at this stop.
    */
-  platforms: Platform[];
+  readonly platforms: Platform[];
 
   /**
    * Generally the display name of the stop, all lowercase, minus the spaces.
@@ -29,7 +29,7 @@ export class Stop {
    * stop, as it will change if the name changes, but can be expected to be
    * unique.
    */
-  urlName: string;
+  readonly urlName: string;
 
   /**
    * A list of stops that are adjacent to this stop in any direction on any
@@ -42,12 +42,17 @@ export class Stop {
    *
    * Adjacency is best viewed on the Victorian Train Map.
    */
-  adjacent: StopID[];
+  readonly adjacent: StopID[];
 
   /**
    * The stop ID as used by the PTV API.
    */
-  ptvID: PTVStopID;
+  readonly ptvID: PTVStopID;
+
+  /**
+   * A list of tags used in search. Does not include the stop's name.
+   */
+  readonly tags: string[];
 
   /**
    * Creates a new stop. Should only really be called while reading in data from
@@ -58,9 +63,10 @@ export class Stop {
    * @param urlName See {@link Stop.urlName}
    * @param adjacent See {@link Stop.adjacent}
    * @param ptvID See {@link Stop.ptvID}
+   * @param tags See {@link Stop.tags}
    */
   constructor(id: StopID, name: string, platforms: Platform[], urlName: string,
-    adjacent: StopID[], ptvID: PTVStopID) {
+    adjacent: StopID[], ptvID: PTVStopID, tags: string[]) {
 
     this.id = id;
     this.name = name;
@@ -68,5 +74,6 @@ export class Stop {
     this.urlName = urlName;
     this.adjacent = adjacent;
     this.ptvID = ptvID;
+    this.tags = tags;
   }
 }
