@@ -25,7 +25,6 @@ export type NetworkApiV1Schema = {
     service: string,
     routeType: string,
     tags: string[],
-    description: string,
     routeLoopPortal?: string,
     directions: {
       id: string,
@@ -76,7 +75,6 @@ export function networkApiV1(network: Network): NetworkApiV1Schema {
         service: l.service,
         routeType: l.route.type,
         tags: l.tags,
-        description: l.description,
         routeLoopPortal: routeLoopPortal,
         directions: l.directions.map(d => {
           return {

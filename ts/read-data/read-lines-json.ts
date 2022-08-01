@@ -28,8 +28,7 @@ const LinesJson = z.object({
     service: z.enum(LineServices),
     route: RouteJson,
     ptvRoutes: z.number().int().array(),
-    tags: z.string().array(),
-    description: z.string()
+    tags: z.string().array()
   }).array()
 });
 
@@ -53,8 +52,7 @@ export function readLinesJson(json: unknown,
   linesJson.lines.forEach(l => {
     const route = readRouteJson(l.route, l.id, stopData);
     const line = new Line(
-      l.id, l.name, l.color, l.service, route, l.ptvRoutes, l.tags,
-      l.description
+      l.id, l.name, l.color, l.service, route, l.ptvRoutes, l.tags
     );
     results.add(line);
   });
