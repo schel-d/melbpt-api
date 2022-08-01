@@ -48,11 +48,6 @@ export class Line {
   readonly tags: string[];
 
   /**
-   * A human-friendly short description of this line.
-   */
-  readonly description: string;
-
-  /**
    * Information about each direction this line can run in. Created by the route
    * upon construction.
    */
@@ -77,8 +72,7 @@ export class Line {
    * @param description See {@link Line.description}.
    */
   constructor(id: LineID, name: string, color: LineColor, service: LineService,
-    route: LineRoute, ptvRoutes: PTVRouteID[], tags: string[],
-    description: string) {
+    route: LineRoute, ptvRoutes: PTVRouteID[], tags: string[]) {
 
     this.id = id;
     this.name = name;
@@ -87,7 +81,6 @@ export class Line {
     this.route = route;
     this.ptvRoutes = ptvRoutes;
     this.tags = tags;
-    this.description = description;
 
     this.directions = this.route.createDirections();
     this.allStops = getAllStops(this.directions);
